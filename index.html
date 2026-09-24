@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0D1422">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Alex">
+<title>Alex</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#0D1422; --night-2:#111A2B; --panel:#152036; --panel-2:#1A2640;
+  --line:#26334D; --text:#E7ECF6; --muted:#8C98B0; --faint:#5C6881;
+  --signal:#86B7FF; --signal-dim:rgba(134,183,255,.14);
+  --window:#FFD98A; --building:#18233A; --building-2:#1D2A45;
+  --display:"Big Shoulders Display","Arial Narrow","Roboto Condensed",sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);background:var(--night)}
+body{margin:0;min-height:100%;background:var(--night);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid var(--signal);outline-offset:3px;border-radius:8px}
+.wrap{max-width:560px;margin:0 auto;padding:0 20px 120px}
+
+/* Header + skyline */
+header.top{position:relative;padding:28px 0 0}
+.mark{font-family:var(--display);font-weight:800;font-size:56px;line-height:.9;letter-spacing:.06em;margin:0}
+.tag{margin:6px 0 0;color:var(--muted);font-size:15px}
+.skyline{display:block;width:100%;height:auto;margin-top:18px}
+.skyline .w{fill:#223151;transition:fill .5s ease}
+.skyline .w.lit{fill:var(--window)}
+.skyline .w.new{animation:glow 1.2s ease}
+@keyframes glow{0%{fill:#fff;filter:drop-shadow(0 0 6px var(--window))}100%{fill:var(--window)}}
+.ground{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent)}
+
+/* Views */
+.view{display:none;padding-top:26px}
+.view.on{display:block}
+h2.title{font-family:var(--display);font-weight:800;font-size:38px;line-height:1;letter-spacing:.02em;margin:0}
+.sub{color:var(--muted);font-size:14px;margin:6px 0 0}
+h3.q{font-size:17px;font-weight:600;margin:32px 0 12px;display:grid;gap:3px}
+h3.q .qsub{font-size:13px;font-weight:500;color:var(--muted)}
+
+/* Today list */
+.list{list-style:none;margin:18px 0 0;padding:0}
+.item{display:flex;align-items:center;gap:14px;padding:16px 4px;border-bottom:1px solid var(--line)}
+.item:first-child{border-top:1px solid var(--line)}
+.check{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--faint);display:grid;place-items:center;transition:background .2s,border-color .2s}
+.check svg{width:16px;height:16px;opacity:0;transition:opacity .2s}
+.item{--accent:var(--signal)}
+.item.done .check{background:var(--accent);border-color:var(--accent)}
+.item.done .check svg{opacity:1}
+.item .t{flex:1;font-size:18px;font-weight:500;text-align:left}
+.item.done .t{color:var(--muted)}
+.item .cat{flex:none;color:var(--accent);opacity:.9;width:20px;height:20px}
+.ttext{flex:1;min-width:0;display:grid;gap:2px}
+.tline{display:flex;align-items:center;gap:7px;min-width:0}
+.subtag{flex:none;display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:6px;border:1px solid var(--accent);color:var(--accent);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.subtag:hover{opacity:1;background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.subtag span{font-size:12px;letter-spacing:0}
+.ttext .t{display:block;min-width:0;font-size:16px;font-weight:500;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sub2{font-size:12px;font-weight:600;color:var(--accent)}
+.item.set-aside .sub2{color:var(--faint)}
+.item.st-done .ttext .t{color:var(--muted)}
+.sseg{display:flex;flex:none;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--night-2)}
+.sseg button{padding:8px 9px;font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--muted);white-space:nowrap}
+.sseg button:hover{color:var(--text)}
+.sseg button[aria-pressed="true"]{background:var(--accent);color:#0D1422}
+.item.st-doing{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 12%,transparent),transparent);border-radius:14px;margin:0 -8px;padding:0 8px}
+.x{flex:none;width:32px;height:32px;border-radius:8px;color:var(--faint);display:grid;place-items:center}
+.x:hover{color:var(--text);background:var(--panel)}
+.dots{flex:none;width:34px;height:34px;border-radius:9px;color:var(--faint);display:grid;place-items:center}
+.dots:hover,.item.menu .dots{color:var(--text);background:var(--panel)}
+.dots svg{transition:transform .2s ease}
+.item.menu .dots svg{transform:rotate(180deg)}
+.tag{flex:none;font-size:12px;font-weight:700;letter-spacing:.03em;color:var(--faint);text-transform:uppercase}
+.tag.on-tag{color:var(--accent)}
+.tag.done-tag{color:var(--faint)}
+.item.menu{background:var(--night-2);border-radius:14px;margin:0 -10px;padding:0 10px}
+.btn.ghost.danger{color:var(--muted)}
+.btn.ghost.danger:hover{color:#FF9B9B;border-color:#FF9B9B}
+.tally{margin:14px 0 0;color:var(--muted);font-size:15px}
+.tally strong{color:var(--text);font-weight:600}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-size:15px;font-weight:500}
+.chip{--accent:var(--signal)}
+.chip svg{width:17px;height:17px;color:var(--accent)}
+.chip:hover{border-color:var(--accent)}
+
+.carry{margin-top:22px;padding:16px;border-radius:14px;background:var(--night-2);border:1px solid var(--line)}
+.carry p{margin:0 0 12px;color:var(--muted);font-size:15px}
+.linkbtn{color:var(--signal);font-weight:600;font-size:15px;padding:6px 0}
+
+.add{margin-top:26px}
+.addbtn{display:flex;align-items:center;gap:10px;font-weight:600;color:var(--signal);padding:8px 0}
+.addform{display:none;gap:10px;flex-direction:column}
+.addform.on{display:flex}
+.field{width:100%;padding:13px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-size:16px}
+.field:focus{border-color:var(--signal);outline:none}
+.row{display:flex;gap:10px}
+.btn{padding:12px 18px;border-radius:12px;font-weight:600;font-size:15px}
+.btn.primary{background:var(--signal);color:#0D1422}
+.btn.ghost{border:1px solid var(--line);color:var(--muted)}
+
+.battery{display:flex;align-items:center;gap:10px;margin-top:34px;padding:14px 16px;width:100%;border-radius:14px;border:1px solid var(--line);color:var(--muted);text-align:left;font-size:15px}
+.battery svg{width:22px;height:22px;color:var(--signal);flex:none}
+.battery:hover{border-color:var(--signal);color:var(--text)}
+.motto{margin:40px 0 0;font-family:var(--display);font-weight:600;font-size:22px;letter-spacing:.03em;color:var(--faint)}
+
+/* Low battery */
+.lb h2.title{font-size:34px}
+.lb .lead{font-size:19px;margin:18px 0 4px}
+.opts{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:10px}
+.opt{width:100%;display:flex;align-items:center;gap:14px;padding:16px;border-radius:14px;background:var(--panel);border:1px solid var(--line);font-size:17px;font-weight:500;text-align:left}
+.opt svg{width:20px;height:20px;color:var(--signal);flex:none}
+.opt:hover{border-color:var(--signal)}
+.opt.static{cursor:default}
+.swdot{--accent:var(--signal);width:11px;height:11px;border-radius:3px;background:var(--accent);flex:none}
+.swt{flex:1;min-width:0}
+.swsrc{--accent:var(--signal);flex:none;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--accent);text-transform:uppercase}
+.sqbtn{width:34px;height:34px;flex:none;border-radius:9px;border:1px solid var(--line);background:var(--night);font-size:19px;line-height:1}
+.sqbtn.minus{color:#F49CAE}
+.sqbtn.plus{color:var(--signal)}
+.sqbtn:hover{border-color:currentColor}
+.swlabel{margin:22px 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.lbedit .opts{gap:9px}
+.one{margin-top:24px;padding:22px 18px;border-radius:16px;background:var(--panel);border:1px solid var(--line)}
+.one .item{border:0;padding:0}
+.one .item .t{font-size:20px}
+.onedone{margin:18px 0 0;font-family:var(--display);font-weight:800;font-size:30px;letter-spacing:.03em;color:var(--signal)}
+
+/* Goals */
+.goal{border-bottom:1px solid var(--line)}
+.goal:first-child{border-top:1px solid var(--line)}
+.ghead{display:flex;align-items:center;gap:14px;width:100%;padding:16px 2px;text-align:left}
+.ghead .ic{width:40px;height:40px;border-radius:12px;background:var(--panel);display:grid;place-items:center;flex:none}
+.ghead .ic svg{width:21px;height:21px;color:var(--accent)}
+.ghead .gt{flex:1;min-width:0}
+.ghead .gn{display:block;font-weight:700;font-size:17px}
+.ghead .gg{display:block;color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ghead .gw{color:var(--muted);font-size:14px;flex:none}
+.paused .gn::after{content:" (paused)";font-weight:500;color:var(--faint)}
+.gbody{display:none;padding:4px 2px 22px}
+.goal.open .gbody{display:grid;gap:14px}
+label.l{display:grid;gap:6px;font-size:14px;color:var(--muted);font-weight:600}
+textarea.field{min-height:72px;resize:vertical}
+.hint{font-size:13px;color:var(--faint);font-weight:500}
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);font-size:20px}
+.stepper output{min-width:24px;text-align:center;font-weight:700;font-size:18px;color:var(--text)}
+.seg{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{flex:1;padding:11px 0;font-weight:600;font-size:15px;color:var(--muted)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--signal-dim);color:var(--signal)}
+
+.group{margin-top:26px}
+.ghdr{display:flex;align-items:center;gap:10px;padding-bottom:2px}
+.group{--accent:var(--signal)}
+.ghdr svg{width:18px;height:18px;color:var(--accent);flex:none}
+.ghdr h3{border-left:3px solid var(--accent);padding-left:9px;margin-left:-3px}
+.ghdr h3{flex:1;margin:0;font-size:16px;font-weight:700;letter-spacing:.01em}
+.ghdr span{color:var(--muted);font-size:14px}
+.group .list{margin-top:6px}
+.irow{display:flex;align-items:center;gap:12px;width:100%}
+.item{display:block}
+.item.set-aside .t{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line)}
+.mini{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-size:13px;font-weight:600;flex:none}
+.mini svg{width:13px;height:13px;fill:currentColor;stroke:none}
+.mini:hover{border-color:var(--signal);color:var(--signal)}
+.clock{font-family:var(--display);font-weight:800;font-size:22px;color:var(--accent);letter-spacing:.04em;flex:none;font-variant-numeric:tabular-nums}
+.panel{padding:4px 0 14px 44px}
+.picker-panel p{color:var(--text);font-size:15px;font-weight:600}
+.blocks{padding:0 0 14px 44px}
+.bbar{display:flex;gap:3px;height:8px}
+.bbar i{border-radius:4px;background:var(--line)}
+.blocks .hint{display:block;margin-top:8px}
+.panel p{margin:0 0 10px;color:var(--muted);font-size:14px}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.btnrow .btn{padding:9px 13px;font-size:14px;border-radius:10px}
+.chips{align-items:flex-start}
+.areas{display:grid;gap:10px;margin-top:12px}
+.area{--accent:var(--signal);transition:opacity .22s ease}
+.area.dim{opacity:.3;pointer-events:none}
+.areahead{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.area.on>.areahead{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
+.areahead:hover{border-color:var(--accent)}
+.areaicon{width:38px;height:38px;flex:none;border-radius:11px;background:var(--night-2);display:grid;place-items:center}
+.area.on .areaicon{background:var(--night)}
+.areaicon svg{width:19px;height:19px;color:var(--accent)}
+.areatext{flex:1;min-width:0;display:grid;gap:2px}
+.areaname{font-size:17px;font-weight:700}
+.areablurb{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.areaplan{flex:none;color:var(--accent);font-size:13px;font-weight:600}
+.chev{flex:none;color:var(--faint);font-size:17px;line-height:1}
+.branch{margin:6px 0 2px 19px;padding:2px 0 2px 16px;border-left:2px solid var(--accent)}
+.subrow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:13px 14px;border-radius:12px;font-size:16px;font-weight:500;color:var(--text)}
+.subrow:hover{background:var(--panel)}
+.subrow.on{background:color-mix(in srgb,var(--accent) 14%,transparent);font-weight:700}
+.subrow em{margin-left:auto;font-style:normal;color:var(--accent);font-size:13px;font-weight:600}
+.branch .subadd{margin:4px 0 10px}
+.branch .chips.inner{margin-bottom:0}
+.branch .subadd{margin-top:10px}
+.subs{margin-top:12px}
+.chip.small{padding:8px 12px;font-size:14px}
+.chip.small.on{border-color:var(--accent);color:var(--accent)}
+.chip.small.planned{border-color:var(--signal);background:var(--signal-dim);color:var(--signal)}
+.chip.small.planned svg{color:var(--signal)}
+.chip.open{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.subadd{display:grid;gap:10px;margin-top:12px;padding:14px;border-radius:14px;background:var(--night-2);border:1px solid var(--line)}
+.subedit{display:grid;gap:8px;padding:12px;border-radius:12px;background:var(--night-2);border:1px solid var(--line)}
+.seg.small button{padding:8px 0;font-size:13px}
+.toggle{display:inline-flex;align-items:center;gap:9px;padding:9px 14px 9px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:14px;font-weight:600;justify-self:start}
+.toggle svg{width:16px;height:16px;opacity:.25}
+.toggle[aria-pressed="true"]{border-color:var(--signal);background:var(--signal-dim);color:var(--signal)}
+.toggle[aria-pressed="true"] svg{opacity:1}
+.chip.dim{opacity:.22;pointer-events:none}
+.chip.back{color:var(--muted);border-style:dashed}
+.chips{transition:none}
+.chip{transition:opacity .22s ease,border-color .2s ease,background .2s ease}
+.spanctl{margin-top:16px;max-width:300px}
+.days{margin-top:8px;display:grid;gap:14px}
+.daycard{padding:14px 16px 16px;border:1px solid var(--line);border-radius:16px;background:var(--night-2)}
+.dhdr{display:flex;align-items:baseline;gap:10px}
+.dhdr h3{margin:0;font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:.03em}
+.dhdr span{flex:1;color:var(--faint);font-size:13px}
+.dhdr .mini{align-self:center}
+.daycard .list{margin-top:4px}
+.daycard .item{border-color:var(--line)}
+.daycard .item:first-child{border-top:0}
+.daycard .item:last-child{border-bottom:0}
+.dempty{margin:8px 0 0;color:var(--faint);font-size:15px}
+@media (min-width:720px){ .days{grid-template-columns:1fr 1fr} }
+.daystrip{display:flex;gap:6px;margin-top:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.daystrip button{flex:1;min-width:58px;position:relative;display:grid;justify-items:center;gap:1px;padding:9px 4px 10px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--muted);font-size:12px;font-weight:600}
+.daystrip button em{font-style:normal;font-family:var(--display);font-weight:800;font-size:19px;color:var(--text);line-height:1}
+.daystrip button[aria-pressed="true"]{border-color:var(--signal);background:var(--signal-dim);color:var(--signal)}
+.daystrip button[aria-pressed="true"] em{color:var(--signal)}
+.daystrip button i{position:absolute;top:-5px;right:-3px;min-width:17px;height:17px;border-radius:9px;background:var(--signal);color:#0D1422;font-size:11px;font-style:normal;font-weight:700;display:grid;place-items:center;padding:0 4px}
+.planned-row .t{color:var(--text);font-size:17px;flex:1;text-align:left;font-weight:500}
+.bullet{width:30px;height:30px;flex:none;display:grid;place-items:center}
+.bullet::after{content:"";width:8px;height:8px;border-radius:50%;border:2px solid var(--accent);opacity:.8}
+.plan{display:grid;gap:6px}
+.pday{display:flex;align-items:center;gap:12px}
+.pday>span{width:42px;flex:none;font-size:13px;font-weight:700;color:var(--faint);letter-spacing:.04em}
+.pday.is-today>span{color:var(--signal)}
+.pday .field{padding:10px 12px;font-size:15px}
+.chip em{font-style:normal;color:var(--accent);font-weight:600;margin-left:2px}
+.chip em::before{content:"· "}
+.picker{display:flex;flex-wrap:wrap;gap:8px}
+.picker button{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;color:var(--muted)}
+.picker button svg{width:21px;height:21px}
+.picker button[aria-pressed="true"]{border-color:var(--signal);background:var(--signal-dim);color:var(--signal)}
+.swatches button{width:38px;height:38px;background:var(--panel)}
+.swatches button::after{content:"";width:20px;height:20px;border-radius:50%;background:var(--sw)}
+.swatches button[aria-pressed="true"]{border-color:var(--sw);background:color-mix(in srgb,var(--sw) 16%,transparent)}
+.linkbtn.danger{color:var(--muted);align-self:flex-start;margin-top:4px}
+.linkbtn.danger:hover{color:#FF9B9B}
+
+/* Roadmap */
+.day{margin-top:18px;font-size:17px;color:var(--muted)}
+.day strong{font-family:var(--display);font-weight:800;font-size:48px;color:var(--text);letter-spacing:.02em;margin-right:6px}
+.bar{height:4px;border-radius:4px;background:var(--line);margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--signal)}
+.phases{list-style:none;padding:0;margin:28px 0 0;position:relative}
+.phase{position:relative;padding:0 0 26px 34px}
+.phase::before{content:"";position:absolute;left:8px;top:22px;bottom:0;width:2px;background:var(--line)}
+.phase:last-child::before{display:none}
+.phase .dot{position:absolute;left:0;top:4px;width:18px;height:18px;border-radius:50%;border:2px solid var(--faint);background:var(--night)}
+.phase.past .dot{background:var(--faint);border-color:var(--faint)}
+.phase.now .dot{border-color:var(--signal);background:var(--signal);box-shadow:0 0 0 5px var(--signal-dim)}
+.phase h4{margin:0;font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:.04em}
+.phase.now h4{color:var(--signal)}
+.phase p{margin:2px 0 0;color:var(--muted);font-size:15px}
+.cycle{list-style:none;padding:0;margin:0}
+.cycle li{--accent:var(--signal);border-bottom:1px solid var(--line);font-size:15px}
+.cycrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 0}
+.cycst{flex:none;font-size:13px;font-weight:600;color:var(--muted)}
+.cycle li.st-change .cycst{color:var(--accent)}
+.cycle li.st-pause .cycst{color:var(--faint)}
+.cycle li.open .cycrow{padding-bottom:6px}
+.cycbody{padding:0 0 14px 13px;border-left:2px solid var(--accent);margin-left:11px}
+.cycbody .hint{display:block;margin:0 0 10px}
+.cycbody .hint:last-child{margin:10px 0 0}
+.cycbody .btn{padding:9px 13px;font-size:14px;border-radius:10px}
+.cycle li span.cyc{flex:1;min-width:0;color:var(--text);border-left:3px solid var(--accent);padding-left:9px}
+.cycle li span:last-child{color:var(--muted);flex:none}
+.cycle li.st-change span:last-child{color:var(--window)}
+.cycle li.st-pause span:last-child{color:var(--faint)}
+
+/* Progress */
+.big{margin:20px 0 0;display:flex;align-items:baseline;gap:12px}
+.big strong{font-family:var(--display);font-weight:800;font-size:72px;line-height:.9}
+.big span{color:var(--muted);font-size:16px;max-width:14ch;line-height:1.3}
+.prow{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.prow:first-child{border-top:1px solid var(--line)}
+.prow svg{width:20px;height:20px;color:var(--accent);flex:none}
+.prow .pl{flex:1}
+.prow .pv{font-weight:700;font-size:17px}
+.prow .pv small{color:var(--muted);font-weight:500;font-size:15px}
+.psub{border-left:3px solid var(--accent);display:flex;justify-content:space-between;padding:7px 0 7px 34px;color:var(--muted);font-size:14px;border-bottom:1px solid var(--line)}
+.dots{display:flex;gap:5px;margin-top:6px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots i.f{background:var(--accent)}
+.note{color:var(--faint);font-size:14px;margin-top:20px}
+.reset{margin-top:44px;font-size:13px;color:var(--faint);text-decoration:underline}
+
+/* Tab bar */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(13,20,34,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav.tabs .in{max-width:560px;margin:0 auto;display:flex}
+nav.tabs button{flex:1;display:grid;justify-items:center;gap:3px;padding:10px 0 12px;font-size:12px;font-weight:600;color:var(--faint)}
+nav.tabs svg{width:22px;height:22px}
+nav.tabs button[aria-current="page"]{color:var(--signal)}
+
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;background:var(--panel-2);border:1px solid var(--line);padding:10px 16px;border-radius:999px;font-size:14px;transition:.25s;pointer-events:none;z-index:6;white-space:nowrap}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+@media (min-width:720px){
+  .mark{font-size:72px}
+  .wrap{padding-bottom:140px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1 class="mark">ALEX</h1>
+    <p class="tag">Same Brain. Bigger Things.</p>
+    <svg class="skyline" id="skyline" viewBox="0 0 360 110" role="img" aria-label=""></svg>
+    <div class="ground"></div>
+  </header>
+
+  <main>
+    <section class="view on" id="v-today" aria-labelledby="h-today"></section>
+    <section class="view" id="v-goals" aria-labelledby="h-goals"></section>
+    <section class="view" id="v-roadmap" aria-labelledby="h-roadmap"></section>
+    <section class="view" id="v-progress" aria-labelledby="h-progress"></section>
+  </main>
+</div>
+
+<nav class="tabs" aria-label="Main">
+  <div class="in">
+    <button data-tab="today" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></svg>Today</button>
+    <button data-tab="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor"/></svg>Goals</button>
+    <button data-tab="roadmap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/></svg>Roadmap</button>
+    <button data-tab="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V14M10 20V9M16 20V12M22 20H2M20 20V5"/></svg>Progress</button>
+  </div>
+</nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+const KEY = 'alex-dashboard-v1';
+const P = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+const ICON = {
+  health:  P('M6 8v8M3 10v4M18 8v8M21 10v4M6 12h12'),
+  math:    P('M17 5H7l6 7-6 7h10'),
+  school:  P('M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 21H20'),
+  coding:  P('M9 7l-5 5 5 5M15 7l5 5-5 5'),
+  life:    P('M4 11l8-7 8 7M6 10v10h12V10'),
+  personal:P('M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z'),
+  rest:    P('M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z'),
+  money:   P('M12 4v16M8.5 8.4A2.6 2.6 0 0 1 11 6.5h2a2.6 2.6 0 0 1 0 5.2h-2a2.6 2.6 0 0 0 0 5.2h2a2.6 2.6 0 0 0 2.5-1.9'),
+  star:    P('M12 4.5l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4L4.2 10.2l5.4-.8z'),
+  music:   P('M9 16.5V5.5l10-2v11M9 16.5a2 2 0 1 1-2-2 2 2 0 0 1 2 2zM19 14.5a2 2 0 1 1-2-2 2 2 0 0 1 2 2z'),
+  people:  P('M8.5 11a3 3 0 1 0-3-3 3 3 0 0 0 3 3zM2.5 20c0-3 2.7-5 6-5s6 2 6 5M16 7.6a3 3 0 0 1 0 5.8M17 15.3c2.4.4 4 2.2 4 4.7'),
+  target:  P('M12 4a8 8 0 1 0 8 8M12 8a4 4 0 1 0 4 4M12 12l8-8'),
+  write:   P('M4 20h4L20 8l-4-4L4 16z'),
+  check:   '<svg viewBox="0 0 24 24" fill="none" stroke="#0D1422" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  x:       P('M7 7l10 10M17 7 7 17'),
+  plus:    P('M12 5v14M5 12h14'),
+  play:    P('M8 5.5l10 6.5-10 6.5z'),
+  check2:  P('M5 12.5l4.5 4.5L19 7.5'),
+  dots:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg>',
+  moon:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
+  battery: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7.5" width="15" height="9" rx="2"/><path d="M21 11v2"/><rect x="5.5" y="10" width="3" height="4" rx=".5" fill="currentColor" stroke="none"/></svg>'
+};
+const COLORS = ['#86B7FF','#7FD1A8','#F2B07B','#D9A6EE','#F49CAE','#7FD8E8'];
+const accentOf = id => { const g = goalOf(id); return (g && g.color) || 'var(--signal)'; };
+const CATS = [
+  {id:'health',  name:'Health',   unit:'Workouts'},
+  {id:'math',    name:'Math',     unit:'Math sessions'},
+  {id:'school',  name:'School',   unit:'Assignments done'},
+  {id:'coding',  name:'Coding',   unit:'Coding sessions'},
+  {id:'life',    name:'Life',     unit:'Life tasks'},
+  {id:'personal',name:'Personal', unit:'Personal time'}
+];
+function seedSmallWins(){
+  return {list:[
+    {id:uid(), t:'10-minute walk', cat:'health', sub:'physical'},
+    {id:uid(), t:'A bit of math', cat:'school', sub:'math'},
+    {id:uid(), t:'Fix one piece of code', cat:'school', sub:'coding'},
+    {id:uid(), t:'Handle one errand', cat:'errands', sub:null},
+    {id:uid(), t:'Intentionally rest', cat:'rest', sub:null, locked:true}
+  ], off:[]};
+}
+const LB_MIN = 3;
+const PHASES = [
+  {n:'Now',   d:'Build consistency',        from:1,  to:30},
+  {n:'Next',  d:'Build momentum',           from:31, to:60},
+  {n:'Then',  d:'Evaluate progress',        from:61, to:80},
+  {n:'Reset', d:'Choose what comes next',   from:81, to:90}
+];
+
+/* ---------- dates ---------- */
+const pad = n => String(n).padStart(2,'0');
+const dkey = (d=new Date()) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseKey = k => { const [y,m,d] = k.split('-').map(Number); return new Date(y,m-1,d); };
+const addDays = (k,n) => { const d = parseKey(k); d.setDate(d.getDate()+n); return dkey(d); };
+const weekStart = (k=dkey()) => { const d = parseKey(k); d.setDate(d.getDate()-((d.getDay()+6)%7)); return dkey(d); };
+const daysBetween = (a,b) => Math.round((parseKey(b)-parseKey(a))/864e5);
+const fmt = (k,o) => parseKey(k).toLocaleDateString(undefined,o);
+const uid = () => Math.random().toString(36).slice(2,10);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- state ---------- */
+const SUB = (id,name,minutes,presets,pin,timed) => ({id,name,minutes,presets:presets||[],plan:['','','','','','',''],pin:!!pin,timed:timed===undefined?true:!!timed});
+function seedHealthSubs(){
+  return [
+    SUB('physical','Physical health',45,['Book an appointment','Call in a refill']),
+    SUB('mental','Mental health',20,[]),
+    SUB('diet','Diet',20,['Plan meals for the week','Grocery run','Prep lunches'])
+  ];
+}
+function seedSchoolSubs(){
+  return [
+    Object.assign(SUB('coursework','Coursework',30,['Check what’s due this week']), {timed:true}),
+    Object.assign(SUB('math','Math',30,['Math practice']), {timed:true}),
+    Object.assign(SUB('coding','Coding',60,['Coding — current project']), {timed:true})
+  ];
+}
+function seedPersonalSubs(){
+  return [ SUB('hygiene','Hygiene',10,[]), SUB('friends','Friends',30,[]), SUB('hobbies','Hobbies',45,[]) ];
+}
+function seedLifeSubs(){
+  return [
+    Object.assign(SUB('cooking','Cooking',30,[]), {timed:true}),
+    SUB('cleaning','Cleaning',10,[])
+  ];
+}
+function seed(){
+  const t = dkey();
+  const g = (id,name,icon,unit,title,next,target) =>
+    ({id,name,icon,unit,title,why:'',focus:'',next,milestone:'',target,subs:[],presets:[],plan:['','','','','','',''],pin:false,timed:true,minutes:30,status:'keep'});
+  return {
+    v:16,
+    goals:[
+      Object.assign(g('health','Health','health','Health sessions','Train consistently','Gym',3), {subs:seedHealthSubs(), color:COLORS[1]}),
+      Object.assign(g('personal','Personal','personal','Personal time','Make time for people who matter','See or call someone',0), {subs:seedPersonalSubs(), color:COLORS[4]}),
+      Object.assign(g('school','School','school','School sessions','Stay on top of classes','Check what’s due this week',4), {subs:seedSchoolSubs(), color:COLORS[0]}),
+      Object.assign(g('life','Life','life','Life tasks','Keep the basics handled','Handle one errand',0), {subs:seedLifeSubs(), color:COLORS[2]}),
+      Object.assign(g('errands','Errands','target','Errands done','Keep errands from piling up','',0), {color:COLORS[5], presets:[], timed:true, minutes:30})
+    ],
+    actions:[
+      {id:uid(),cat:'health',sub:'physical',title:'Gym',date:t,done:false,state:'todo',minutes:45},
+      {id:uid(),cat:'school',sub:'math',title:'Math practice',date:t,done:false,state:'todo'},
+      {id:uid(),cat:'school',sub:'coding',title:'Coding — current project',date:t,done:false,state:'todo'}
+    ],
+    roadmapStart:t,
+    smallWins:seedSmallWins(),
+    lastLen:{},
+    lowBatteryDate:null,
+    carryHandled:t
+  };
+}
+function migrate5(s){
+  s.goals.forEach(g => {
+    g.subs = g.subs || [];
+    if (g.id==='health' && !g.subs.length) g.subs = seedHealthSubs();
+    g.subs.forEach(sb => { if (!sb.plan) sb.plan = ['','','','','','','']; });
+    // a plan set on a goal that now has sub-areas moves to the first sub-area
+    if (g.subs.length && (g.plan||[]).some(x=>x && x.trim())){
+      const target = g.subs.find(sb => !sb.plan.some(x=>x && x.trim()));
+      if (target) target.plan = g.plan.slice();
+      g.plan = ['','','','','','',''];
+    }
+  });
+  s.v = 5;
+  migrate6(s);
+}
+function migrate6(s){
+  const PRIMARY = ['health','personal','school'];
+  s.goals.forEach(g => { if (g.pin === undefined) g.pin = PRIMARY.includes(g.id);
+    (g.subs||[]).forEach(sb => { if (sb.pin === undefined) sb.pin = (g.id==='life' && /errand/i.test(sb.name||'')); }); });
+  const order = ['health','personal','school','math','coding','life'];
+  s.goals.sort((a,b)=>{ const i = order.indexOf(a.id), j = order.indexOf(b.id);
+    return (i<0?99:i) - (j<0?99:j); });
+  s.v = 6;
+  migrate7(s);
+}
+function migrate7(s){
+  const goal = id => s.goals.find(g=>g.id===id);
+  const move = (fromId, toId, subId, name, minutes) => {
+    const from = goal(fromId), to = goal(toId);
+    if (!to) return;
+    to.subs = to.subs || [];
+    if (!to.subs.some(x=>x.id===subId)){
+      const sb = SUB(subId, name, minutes, from && from.next ? [from.next] : []);
+      if (from){ sb.plan = (from.plan||sb.plan).slice(); sb.presets = from.next ? [from.next] : []; }
+      to.subs.push(sb);
+    }
+    if (from){
+      s.actions.forEach(a=>{ if (a.cat===fromId){ a.cat = toId; a.sub = subId; } });
+      s.goals = s.goals.filter(g=>g.id!==fromId);
+    }
+  };
+  // Math and Coding become sub-areas of School
+  const sch = goal('school');
+  if (sch){
+    sch.subs = sch.subs || [];
+    if (!sch.subs.length) sch.subs.push(SUB('coursework','Coursework',30, sch.next?[sch.next]:[]));
+    move('math','school','math','Math',30);
+    move('coding','school','coding','Coding',45);
+    sch.unit = 'School sessions';
+  }
+  // Health: Gym -> Physical health, Medical -> Mental health, keep Diet
+  const h = goal('health');
+  if (h){
+    h.subs = h.subs || [];
+    const find = re => h.subs.find(sb=>re.test(sb.name||''));
+    const gym = find(/gym|physical/i), med = find(/medical|mental/i), diet = find(/diet/i);
+    if (gym){ gym.name = 'Physical health'; if (med) gym.presets = [...new Set([...(gym.presets||[]), ...(med.presets||[])])]; }
+    else h.subs.unshift(SUB('physical','Physical health',45,['Book an appointment','Call in a refill']));
+    if (med){ med.name = 'Mental health'; med.presets = []; }
+    else h.subs.push(SUB('mental','Mental health',20,[]));
+    if (!diet) h.subs.push(SUB('diet','Diet',20,['Plan meals for the week','Grocery run','Prep lunches']));
+    h.unit = 'Health sessions';
+  }
+  // Personal: hygiene, friends, hobbies
+  const per = goal('personal');
+  if (per){
+    per.subs = per.subs || [];
+    [['hygiene','Hygiene',10],['friends','Friends',30],['hobbies','Hobbies',45]].forEach(([id,name,m])=>{
+      if (!per.subs.some(sb=>sb.id===id || new RegExp(name,'i').test(sb.name||''))) per.subs.push(SUB(id,name,m,[]));
+    });
+  }
+  // Life: personal care moves out (hygiene covers it)
+  const life = goal('life');
+  if (life && life.subs){
+    const pc = life.subs.find(sb=>/personal care/i.test(sb.name||''));
+    if (pc){ s.actions.forEach(a=>{ if (a.sub===pc.id) a.sub = null; }); life.subs = life.subs.filter(sb=>sb.id!==pc.id); }
+  }
+  s.v = 7;
+  migrate8(s);
+}
+function migrate8(s){
+  s.goals.forEach(g => (g.subs||[]).forEach(sb => { if (sb.timed === undefined) sb.timed = /cleaning/i.test(sb.name||''); }));
+  s.v = 8;
+  migrate9(s);
+}
+function migrate9(s){
+  const DEF = {health:COLORS[1], personal:COLORS[4], school:COLORS[0], life:COLORS[2]};
+  s.goals.forEach((g,i)=>{ if (!g.color) g.color = DEF[g.id] || COLORS[i % COLORS.length]; });
+  s.v = 9;
+  migrate10(s);
+}
+function migrate10(s){
+  s.goals.forEach(g => { if (!g.presets) g.presets = []; });
+  const life = s.goals.find(g=>g.id==='life');
+  const er = life && (life.subs||[]).find(sb=>/errand/i.test(sb.name||''));
+  if (er && !s.goals.some(g=>g.id==='errands')){
+    const ng = {id:'errands', name:er.name||'Errands', icon:'target', unit:(er.name||'Errands')+' done',
+      title:'Keep errands from piling up', why:'', focus:'', next:'', milestone:'', target:0,
+      subs:[], presets:(er.presets||[]).slice(), plan:(er.plan||['','','','','','','']).slice(),
+      pin:false, color:COLORS[5], status:'keep'};
+    s.actions.forEach(a=>{ if (a.sub===er.id){ a.cat = 'errands'; a.sub = null; } });
+    life.subs = life.subs.filter(sb=>sb.id!==er.id);
+    const i = s.goals.indexOf(life);
+    s.goals.splice(i+1, 0, ng);
+  }
+  s.v = 10;
+  migrate11(s);
+}
+function migrate11(s){
+  if (!s.smallWins || !Array.isArray(s.smallWins.list)) s.smallWins = seedSmallWins();
+  s.v = 11;
+  migrate12(s);
+}
+function migrate12(s){
+  const sch = s.goals.find(g=>g.id==='school');
+  if (sch) (sch.subs||[]).forEach(sb=>{
+    if (sb.timed === undefined || sb.timed === false){
+      sb.timed = true;
+      sb.minutes = /coding/i.test(sb.name||'') ? 60 : 30;
+    }
+  });
+  s.lastLen = s.lastLen || {};
+  s.v = 12;
+  migrate13(s);
+}
+function migrate13(s){
+  const fix = t => t === 'Math — 30 minutes' ? 'Math practice' : t;
+  s.actions.forEach(a=>{ a.title = fix(a.title); });
+  s.goals.forEach(g=>{
+    g.next = fix(g.next || '');
+    g.presets = (g.presets||[]).map(fix);
+    (g.subs||[]).forEach(sb=>{ sb.presets = (sb.presets||[]).map(fix); });
+  });
+  if (s.smallWins){
+    ['list','off'].forEach(k=>{ (s.smallWins[k]||[]).forEach(o=>{ o.t = o.t==='15 minutes of math' ? 'A bit of math' : fix(o.t); }); });
+  }
+  s.v = 13;
+  migrate14(s);
+}
+function migrate14(s){
+  const er = s.goals.find(g=>g.id==='errands');
+  if (er && er.timed === undefined){ er.timed = true; er.minutes = 30; }
+  s.goals.forEach(g=>{ if (g.timed === undefined) g.timed = false; if (!g.minutes) g.minutes = 30; });
+  s.v = 14;
+  migrate15(s);
+}
+function migrate15(s){
+  const life = s.goals.find(g=>g.id==='life');
+  const ck = life && (life.subs||[]).find(sb=>/cooking/i.test(sb.name||''));
+  if (ck && !ck.timed){ ck.timed = true; ck.minutes = 30; }
+  s.v = 15;
+  migrate16(s);
+}
+function migrate16(s){
+  s.goals.forEach(g=>{
+    if (g.timed !== false || !(g.subs||[]).length) g.timed = true;
+    if (!g.minutes) g.minutes = 30;
+    (g.subs||[]).forEach(sb=>{ if (!sb.timed){ sb.timed = true; if (!sb.minutes || sb.minutes < 10) sb.minutes = 30; } });
+  });
+  s.v = 16;
+}
+function load(){
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && s.v===16) return s;
+    if (s && s.v===15){ migrate16(s); return s; }
+    if (s && s.v===14){ migrate15(s); return s; }
+    if (s && s.v===13){ migrate14(s); return s; }
+    if (s && s.v===12){ migrate13(s); return s; }
+    if (s && s.v===11){ migrate12(s); return s; }
+    if (s && s.v===10){ migrate11(s); return s; }
+    if (s && s.v===9){ migrate10(s); return s; }
+    if (s && s.v===8){ migrate9(s); return s; }
+    if (s && s.v===7){ migrate8(s); return s; }
+    if (s && s.v===6){ migrate7(s); return s; }
+    if (s && s.v===5){ migrate6(s); return s; }
+    if (s && s.v===4){ migrate5(s); return s; }
+    if (s && s.v===3){ s.goals.forEach(g => { if (!g.plan) g.plan = ['','','','','','','']; }); s.v = 4; migrate5(s); return s; }
+    if (s && s.v===2){ s.goals.forEach(g => { if (!g.subs) g.subs = (g.id==='life' ? seedLifeSubs() : []); }); s.goals.forEach(g => { if (!g.plan) g.plan = ['','','','','','','']; }); s.v = 4; migrate5(s); return s; }
+    if (s && s.v===1 && s.goals && !Array.isArray(s.goals)){ // earlier build: fixed six areas
+      s.goals = CATS.map(c => Object.assign({id:c.id,name:c.name,icon:c.id,unit:c.unit}, s.goals[c.id]));
+      s.goals.forEach(g => g.subs = (g.id==='life' ? seedLifeSubs() : []));
+      s.goals.forEach(g => { g.plan = ['','','','','','','']; });
+      s.v = 4; migrate5(s); return s;
+    }
+  } catch(e){}
+  return seed();
+}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+let S = load(); save();
+
+let tab = 'today', openGoal = null, addOpen = false, goalAddOpen = false, newIcon = 'target', justLit = -1;
+const today = () => dkey();
+const todays = () => S.actions.filter(a => a.date===today());
+const weekActions = (ws=weekStart()) => { const we = addDays(ws,6); return S.actions.filter(a => a.done && a.date>=ws && a.date<=we); };
+const goalOf = id => S.goals.find(g => g.id===id);
+const catName = id => id==='rest' ? 'Rest' : ((goalOf(id)||{}).name || 'Unsorted');
+const iconFor = id => id==='rest' ? ICON.rest : (ICON[(goalOf(id)||{}).icon] || ICON.target);
+const activeGoals = () => S.goals.filter(g => g.status !== 'pause');
+const ICON_CHOICES = ['health','math','school','coding','life','personal','money','star','music','people','target','write'];
+const MINUTE_CHOICES = [10,15,30,45,60];
+const lenLabel = m => m===60 ? '1 hour + breaks' : `${m} min`;
+const BLOCKS = [25,5,25];               // an hour = work, break, work
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const dayIdx = (k=dkey()) => (parseKey(k).getDay()+6)%7;
+const plannedOn = (o,k) => (((o&&o.plan)||[])[dayIdx(k)] || '').trim();
+const plannedToday = o => plannedOn(o,vday());
+const hasPlan = o => (((o&&o.plan)||[]).some(x=>x && x.trim()));
+const TEMPLATES = {
+  ppl:   {name:'Push / Pull / Legs', days:['Push','','Pull','Legs','Push','','']},
+  ul:    {name:'Upper / Lower',      days:['Upper','Lower','','Upper','Lower','','']},
+  three: {name:'Three full days',    days:['Full body','','Full body','','Full body','','']}
+};
+const subOf = sid => { for (const g of S.goals){ const s = (g.subs||[]).find(x=>x.id===sid); if (s) return {goal:g, sub:s}; } return null; };
+const running = () => S.actions.find(a => a.date===today() && a.state==='progress' && !a.done && (a.endsAt || a.paused));
+const ticking = () => S.actions.find(a => a.date===today() && a.state==='progress' && !a.done && a.endsAt);
+const timeOwner = a => { const f = a.sub && subOf(a.sub); return f ? f.sub : (goalOf(a.cat) || null); };
+const isTimed = a => { const o = timeOwner(a); return o ? o.timed !== false : true; };
+const lenKey = a => a.sub || ('goal:' + a.cat);
+const mmss = ms => { const t = Math.max(0,Math.ceil(ms/1000)); return `${Math.floor(t/60)}:${pad(t%60)}`; };
+let openSub = null, openGoalChip = null, openPlan = null, openItem = null, openStart = null, openCycle = null, lbEdit = false, lbFocusInput = false, lbMore = false;
+let viewDay = null, planAhead = false, spanDays = 0, dayAddOpen = null, chipFocus = false;  // 0 = one day at a time
+const vday = () => (viewDay && viewDay >= today()) ? viewDay : today();
+const isToday = () => vday() === today();
+const dayList = k => S.actions.filter(a => a.date===k);
+const AHEAD = 4;                                      // days you can plan forward // sub picker state on Today
+
+/* ---------- skyline ---------- */
+const WINDOWS = [];
+function buildSkyline(){
+  let r = 7; const rand = () => (r = (r*9301+49297)%233280)/233280;
+  let x = 0, out = '';
+  while (x < 360){
+    const w = 22 + Math.floor(rand()*30), h = 34 + Math.floor(rand()*62), y = 110-h;
+    const fill = rand()>.5 ? 'var(--building)' : 'var(--building-2)';
+    out += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"/>`;
+    if (rand()>.6) out += `<rect x="${x+w/2-1}" y="${y-10}" width="2" height="10" fill="${fill}"/>`;
+    for (let wy = y+8; wy < 104; wy += 11){
+      for (let wx = x+5; wx < x+w-6; wx += 8){
+        if (rand()>.72) WINDOWS.push({x:wx,y:wy});
+      }
+    }
+    x += w + 2 + Math.floor(rand()*4);
+  }
+  // deterministic but scattered lighting order
+  WINDOWS.sort((a,b)=> ((a.x*37+a.y*91)%97) - ((b.x*37+b.y*91)%97));
+  out += WINDOWS.map((p,i)=>`<rect class="w" data-i="${i}" x="${p.x}" y="${p.y}" width="3.5" height="5" rx=".6"/>`).join('');
+  document.getElementById('skyline').innerHTML = out;
+}
+function lightSkyline(){
+  const n = weekActions().length;
+  document.querySelectorAll('#skyline .w').forEach((el,i)=>{
+    el.classList.toggle('lit', i < n);
+    el.classList.toggle('new', i === justLit);
+  });
+  document.getElementById('skyline').setAttribute('aria-label', `A city skyline. ${n} window${n===1?'':'s'} lit, one for each thing finished this week.`);
+  justLit = -1;
+}
+
+/* ---------- views ---------- */
+function renderToday(){
+  const el = document.getElementById('v-today');
+  if (S.lowBatteryDate === today()) return renderLowBattery(el);
+  const k = spanDays ? today() : vday(), todayView = k===today();
+  const list = dayList(k).filter(a=>!a.lb);
+  const done = list.filter(a=>a.done).length;
+  const skipped = list.filter(a=>a.state==='skip' && !a.done).length;
+  const counted = list.length - skipped;
+  const dateLabel = fmt(k,{weekday:'long',month:'long',day:'numeric'});
+  const spanCtl = (planAhead || !todayView || spanDays) ? `<div class="seg small spanctl" role="group" aria-label="How many days to show">
+      ${[[0,'1 day'],[3,'3 days'],[5,'5 days']].map(([n,l])=>`<button data-act="span" data-n="${n}" aria-pressed="${spanDays===n}">${l}</button>`).join('')}
+    </div>` : '';
+  const strip = (!spanDays && (planAhead || !todayView)) ? `<div class="daystrip" role="group" aria-label="Choose a day">
+      ${Array.from({length:AHEAD+1},(_,i)=>addDays(today(),i)).map((dk,i)=>`<button data-act="day" data-d="${dk}" aria-pressed="${dk===k}">
+        <span>${i===0?'Today':DAYS[dayIdx(dk)]}</span><em>${parseKey(dk).getDate()}</em>
+        ${dayList(dk).filter(a=>!a.lb).length?`<i aria-hidden="true">${dayList(dk).filter(a=>!a.lb).length}</i>`:''}</button>`).join('')}
+    </div>` : '';
+
+  // carry prompt: unfinished items from the last day that had any
+  let carry = '';
+  if (todayView && S.carryHandled !== today()){
+    const prevDates = [...new Set(S.actions.filter(a=>a.date<today()).map(a=>a.date))].sort();
+    const last = prevDates[prevDates.length-1];
+    const titlesToday = new Set(list.map(a=>a.title));
+    const open = last ? S.actions.filter(a=>a.date===last && !a.done && a.cat!=='rest' && !titlesToday.has(a.title)) : [];
+    if (open.length){
+      const when = daysBetween(last,today())===1 ? 'yesterday' : fmt(last,{weekday:'long'});
+      carry = `<div class="carry"><p>Still open from ${esc(when)}. Bring any of these into today?</p>
+        <div class="chips">${open.map(a=>`<button class="chip" data-act="carry" data-id="${a.id}">${ICON.plus}${esc(a.title)}</button>`).join('')}</div>
+        <button class="linkbtn" data-act="carry-done" style="margin-top:10px">Not today</button></div>`;
+    }
+  }
+
+  const focusGoals = activeGoals();
+  el.innerHTML = `
+    <h2 class="title" id="h-today">${todayView ? 'Today' : esc(fmt(k,{weekday:'long'}))}</h2>
+    <p class="sub">${esc(dateLabel)}${todayView?'':' · planning ahead'}</p>
+    ${spanCtl}${strip}
+    ${list.length ? `${todayListHTML(list)}
+      <p class="tally">${!todayView ? `<strong>${list.length}</strong> planned for ${esc(DAYS[dayIdx(k)])}`
+        : done===counted ? '<strong>All done.</strong> You showed up.' : `<strong>${done} / ${counted}</strong> complete`}${todayView&&skipped?` · ${skipped} set aside`:''}</p>`
+      : `<p class="tally" style="margin-top:18px">${todayView ? 'Nothing on today yet. Pick a focus below, or add something.' : `Nothing planned for ${esc(fmt(k,{weekday:'long'}))} yet. Add what you want waiting for you.`}</p>`}
+    ${spanDays ? `<div class="days">${Array.from({length:spanDays-1},(_,i)=>addDays(today(),i+1)).map(dayCardHTML).join('')}</div>` : ''}
+    ${todayView ? `<button class="linkbtn" data-act="ahead" style="margin-top:${spanDays?18:10}px">${(planAhead||spanDays)?'Just today':'Plan the next few days ›'}</button>` : ''}
+    ${carry}
+    <h3 class="q">${chipFocus && goalOf(openGoalChip) ? `Which part of ${esc(goalOf(openGoalChip).name)}?` : 'What do you want to focus on?'}<span class="qsub">Choose one area. What’s inside opens underneath it.</span></h3>
+    ${focusGoals.length ? focusChipsHTML(focusGoals)
+      : `<p class="sub">No active goals. Add one in Goals, or just add something below.</p>`}
+    <div class="add">
+      <button class="addbtn" data-act="add-open" aria-expanded="${addOpen}" ${addOpen?'hidden':''}>${ICON.plus.replace('<svg','<svg width="20" height="20"')} Add something</button>
+      <form class="addform ${addOpen?'on':''}" data-form="add">
+        <label class="sr" for="add-t">What is it?</label>
+        <input class="field" id="add-t" name="t" placeholder="What is it?" autocomplete="off" required maxlength="80">
+        <div class="row">
+          <label class="sr" for="add-c">Area</label>
+          <select class="field" id="add-c" name="c">${S.goals.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}<option value="none">Unsorted</option></select>
+          <button class="btn primary" type="submit">Add</button>
+        </div>
+        <button class="linkbtn" type="button" data-act="add-close" style="align-self:flex-start">Cancel</button>
+      </form>
+    </div>
+    ${todayView ? `<button class="battery" data-act="lb-on">${ICON.battery}<span>Low on energy today? Switch to low battery mode.</span></button>
+    <p class="motto">Progress &gt; Perfection.</p>` : `<p class="motto">Plans are drafts.</p>`}`;
+  if (addOpen) setTimeout(()=>{ const i=document.getElementById('add-t'); i && i.focus(); },0);
+}
+function todayListHTML(list){
+  const loose = list.filter(a=>!a.sub);
+  const groups = [];
+  list.filter(a=>a.sub).forEach(a=>{
+    let gr = groups.find(x=>x.sid===a.sub);
+    if (!gr){ const f = subOf(a.sub); gr = {sid:a.sub, name:f?f.sub.name:'Set aside', icon:f?f.goal.icon:'target', color:f?(f.goal.color||'var(--signal)'):'var(--signal)', items:[]}; groups.push(gr); }
+    gr.items.push(a);
+  });
+  const order = a => a.done ? 1 : (a.state==='skip' ? 2 : 0);
+  const sorted = arr => arr.slice().sort((x,y)=>order(x)-order(y));
+  const solo = groups.filter(g=>g.items.length===1);
+  const multi = groups.filter(g=>g.items.length>1);
+  const top = sorted([...loose, ...solo.flatMap(g=>g.items)]);
+  return `${top.length?`<ul class="list">${top.map(a=>itemHTML(a, a.sub?(subOf(a.sub)||{}).sub:null)).join('')}</ul>`:''}
+    ${multi.map(gr=>{
+      const d = gr.items.filter(a=>a.done).length;
+      return `<section class="group" style="--accent:${gr.color}">
+        <div class="ghdr">${ICON[gr.icon]||ICON.target}<h3>${esc(gr.name)}</h3><span>${d} / ${gr.items.length}</span>
+          <button class="x" data-act="sub-open" data-sub="${gr.sid}" aria-label="Add to ${esc(gr.name)}">${ICON.plus.replace('<svg','<svg width="18" height="18"')}</button></div>
+        <ul class="list">${sorted(gr.items).map(itemHTML).join('')}</ul>
+      </section>`;
+    }).join('')}`;
+}
+function itemHTML(a, soloSub){
+  const ac = accentOf(a.cat);
+  const tag = soloSub && soloSub.name
+    ? `<button class="subtag" data-act="sub-open" data-sub="${soloSub.id}" aria-label="Add another to ${esc(soloSub.name)}">${esc(soloSub.name)}<span aria-hidden="true">+</span></button>`
+    : '';
+  const menu = openItem===a.id;
+  if (a.date !== today()) return `<li class="item planned-row ${menu?'menu':''}" style="--accent:${ac}">
+    <div class="irow">
+      <span class="bullet" aria-hidden="true"></span>
+      <span class="t">${esc(a.title)}</span>
+      <span class="cat" title="${esc(catName(a.cat))}">${iconFor(a.cat)}</span>
+      <button class="dots" data-act="item-menu" data-id="${a.id}" aria-expanded="${menu}" aria-label="${menu?'Hide':'Show'} options for ${esc(a.title)}">${ICON.dots}</button>
+    </div>
+    ${menu?itemPanelHTML(a):''}</li>`;
+  const state = a.done ? 'done' : (a.state==='progress' ? 'doing' : 'todo');
+  const live = state==='doing';
+  const left = live && a.endsAt ? a.endsAt - Date.now() : 0;
+  const bi = blockInfo(a);
+  const sub = a.state==='skip' && !a.done ? 'Set aside'
+    : live && a.paused ? `Paused · ${mmss(a.paused)} left${bi?` · ${bi.isBreak?'break':'block '+bi.workNo}`:''}`
+    : live && a.endsAt ? `<span id="t-${a.id}">${left<=0?'time’s up':mmss(left)}</span>${bi?` · ${bi.isBreak?'break':'block '+bi.workNo+' of '+bi.works}`:' of this window'}`
+    : live ? 'In progress'
+    : '';
+  const seg = [['todo','To do'],['doing','Doing'],['done','Done']].map(([k,l])=>
+    `<button data-act="setstate" data-id="${a.id}" data-s="${k}" aria-pressed="${state===k}" aria-label="${l}: ${esc(a.title)}">${l}</button>`).join('');
+  return `<li class="item st-${state} ${a.state==='skip'&&!a.done?'set-aside':''} ${menu?'menu':''}" style="--accent:${ac}">
+    <div class="irow">
+      <span class="cat" title="${esc(catName(a.cat))}">${iconFor(a.cat)}</span>
+      <span class="ttext"><span class="tline">${tag}<span class="t">${esc(a.title)}</span></span>${sub?`<span class="sub2">${sub}</span>`:''}</span>
+      <span class="sseg" role="group" aria-label="Status">${seg}</span>
+      <button class="dots" data-act="item-menu" data-id="${a.id}" aria-expanded="${menu}" aria-label="${menu?'Hide':'Show'} options for ${esc(a.title)}">${ICON.dots}</button>
+    </div>
+    ${openStart===a.id?startPickerHTML(a):''}
+    ${live && a.blocks?blockBarHTML(a, a.paused?1:left):''}
+    ${menu?itemPanelHTML(a):''}
+  </li>`;
+}
+function startPickerHTML(a){
+  const o = timeOwner(a), def = (o && o.minutes) || 30;
+  const lastM = S.lastLen ? S.lastLen[lenKey(a)] : null;
+  return `<div class="panel picker-panel">
+    <p>How long are you good for?</p>
+    <div class="btnrow">
+      ${MINUTE_CHOICES.filter(m=>m>=15).map(m=>`<button class="btn ${m===def?'primary':'ghost'}" data-act="start-len" data-id="${a.id}" data-m="${m}">${lenLabel(m)}</button>`).join('')}
+      <button class="btn ghost" data-act="start-len" data-id="${a.id}" data-m="0">Just start</button>
+    </div>
+    ${lastM?`<p class="hint" style="margin-top:8px">Last time you did ${lastM===60?'an hour':lastM+' minutes'}.</p>`:''}
+  </div>`;
+}
+function blockBarHTML(a, left){
+  const bi = blockInfo(a); if (!bi) return '';
+  const over = left <= 0;
+  const bar = BLOCKS.map((m,i)=>`<i style="flex-grow:${m};background:${i<bi.i?'var(--accent)':i===bi.i?(bi.isBreak?'var(--faint)':'var(--accent)'):'var(--line)'};opacity:${i===bi.i?1:(i<bi.i?.55:1)}"></i>`).join('');
+  let ctrl = '';
+  if (over){
+    ctrl = bi.last
+      ? `<div class="btnrow" style="margin-top:10px"><button class="btn primary" data-act="finish" data-id="${a.id}">Completed</button><button class="btn ghost" data-act="stop" data-id="${a.id}">Stop here</button></div>`
+      : bi.isBreak
+        ? `<div class="btnrow" style="margin-top:10px"><button class="btn primary" data-act="blk-next" data-id="${a.id}">Start block ${bi.workNo+1}</button><button class="btn ghost" data-act="finish" data-id="${a.id}">Call it done</button></div>`
+        : `<div class="btnrow" style="margin-top:10px"><button class="btn primary" data-act="blk-next" data-id="${a.id}">Take the 5-minute break</button><button class="btn ghost" data-act="blk-skip" data-id="${a.id}">Straight to the next block</button><button class="btn ghost" data-act="stop" data-id="${a.id}">Stop here</button></div>`;
+  }
+  return `<div class="blocks">
+    <div class="bbar" aria-hidden="true">${bar}</div>
+    <p class="hint">${over
+      ? (bi.last ? 'That’s the hour. Nothing else is running.'
+        : bi.isBreak ? 'Break’s over whenever you’re ready — nothing runs out.'
+        : 'Block done. Stand up for five, or keep going.')
+      : (bi.isBreak ? 'Break. The next block starts when you come back.' : `Block ${bi.workNo} of ${bi.works} · break after this`)}</p>
+    ${ctrl}
+  </div>`;
+}
+function itemPanelHTML(a){
+  const live = a.state==='progress' && !a.done;
+  const timed = isTimed(a);
+  const nextDay = a.date===today() ? 'Move to tomorrow' : 'Move to next day';
+  return `<div class="panel">
+    <div class="btnrow">
+      <button class="btn ghost" data-act="tomorrow" data-id="${a.id}">${nextDay}</button>
+      ${a.done ? '' : a.state==='skip'
+        ? `<button class="btn ghost" data-act="unskip" data-id="${a.id}">Bring back</button>`
+        : `<button class="btn ghost" data-act="skip" data-id="${a.id}">Set aside</button>`}
+      <button class="btn ghost danger" data-act="remove" data-id="${a.id}">Delete</button>
+      ${live && timed && a.endsAt ? `<button class="btn ghost" data-act="pause" data-id="${a.id}">Pause</button>` : ''}
+      ${live && a.paused ? `<button class="btn primary" data-act="resume" data-id="${a.id}">Resume</button>` : ''}
+      ${live && timed ? `<button class="btn ghost" data-act="more" data-id="${a.id}">+${a.minutes||10} min</button>
+        <button class="btn ghost" data-act="next" data-id="${a.id}">Done, next one</button>` : ''}
+    </div>
+  </div>`;
+}
+function focusChipsHTML(goals){
+  const dimming = chipFocus && openGoalChip;
+  const openPinned = openSub && (() => { const f = subOf(openSub); return f && f.sub.pin ? f : null; })();
+  const parts = [];
+  goals.forEach(g=>{
+    const off = dimming && g.id!==openGoalChip;
+    const open = openGoalChip===g.id && !openPinned;
+    const subs = (g.subs||[]);
+    const blurb = subs.length ? subs.map(sb=>sb.name).join(', ') : (g.title || 'No goal yet');
+    parts.push(`<div class="area ${open?'on':''} ${off?'dim':''}" style="--accent:${g.color||'var(--signal)'}">
+      <button class="areahead" data-act="focus" data-cat="${g.id}" ${off?'disabled tabindex="-1"':''} aria-expanded="${open}">
+        <span class="areaicon">${ICON[g.icon]||ICON.target}</span>
+        <span class="areatext"><span class="areaname">${esc(g.name)}</span><span class="areablurb">${esc(blurb)}</span></span>
+        ${plannedToday(g)&&!subs.length?`<span class="areaplan">${esc(plannedToday(g))}</span>`:''}
+        <span class="chev" aria-hidden="true">${open?'⌃':'›'}</span>
+      </button>
+      ${open ? `<div class="branch">${subs.length
+        ? subs.map(sb=>`<button class="subrow ${openSub===sb.id?'on':''}" data-act="sub-open" data-sub="${sb.id}">
+            <span>${esc(sb.name)}</span>${plannedToday(sb)?`<em>${esc(plannedToday(sb))}</em>`:''}</button>
+            ${openSub===sb.id?subAddHTML(subOf(sb.id)):''}`).join('')
+        : subAddHTML({goal:g, sub:{id:'', name:g.name, presets:(g.presets&&g.presets.length?g.presets:(g.next?[g.next]:[])), plan:g.plan, minutes:0, timed:false}, direct:g})}</div>` : ''}
+    </div>`);
+    subs.filter(sb=>sb.pin).forEach(sb=>{
+      const sopen = openPinned && openPinned.sub.id===sb.id;
+      parts.push(`<div class="area ${sopen?'on':''} ${off?'dim':''}" style="--accent:${g.color||'var(--signal)'}">
+        <button class="areahead" data-act="sub-open" data-sub="${sb.id}" ${off?'disabled tabindex="-1"':''} aria-expanded="${!!sopen}">
+          <span class="areaicon">${ICON[g.icon]||ICON.target}</span>
+          <span class="areatext"><span class="areaname">${esc(sb.name)}</span><span class="areablurb">${sb.presets.length?esc(sb.presets.slice(0,3).join(', ')):`In ${esc(g.name)}`}</span></span>
+          ${plannedToday(sb)?`<span class="areaplan">${esc(plannedToday(sb))}</span>`:''}
+          <span class="chev" aria-hidden="true">${sopen?'⌃':'›'}</span>
+        </button>
+        ${sopen?`<div class="branch">${subAddHTML(openPinned)}</div>`:''}
+      </div>`);
+    });
+  });
+  if (dimming) parts.push(`<button class="linkbtn" data-act="all-areas" style="margin-top:4px">‹ All areas</button>`);
+  return `<div class="areas">${parts.join('')}</div>`;
+}
+function subAddHTML(f){
+  const sid = f.sub && f.sub.id ? f.sub.id : '';
+  return `<form class="subadd" data-form="sub-add" data-sub="${sid}">
+      ${plannedToday(f.sub) ? `<div class="chips"><button type="button" class="chip small planned" data-act="planned" data-sub="${sid}">${ICON.plus}${DAYS[dayIdx(vday())]}: ${esc(plannedToday(f.sub))}</button></div>`
+        : hasPlan(f.sub) ? `<p class="hint">No ${esc(f.sub.name)} session planned for ${DAYS[dayIdx(vday())]} — rest day.</p>` : ''}
+      ${f.sub.presets.length ? `<p class="hint">Tap one, or type your own.</p>
+        <div class="chips">${f.sub.presets.map((t,i)=>`<button type="button" class="chip small" data-act="preset" data-sub="${sid}" data-i="${i}">${ICON.plus}${esc(t)}</button>`).join('')}</div>` : ''}
+      <div class="row">
+        <label class="sr" for="sub-t">Add to ${esc(f.sub.name)}</label>
+        <input class="field" id="sub-t" name="t" placeholder="Add to ${esc(f.sub.name)}…" autocomplete="off" maxlength="80">
+        <button class="btn primary" type="submit">Add</button>
+      </div>
+      ${f.sub.timed ? `<span class="hint">Each one opens a ${f.sub.minutes}-minute window when you start it.</span>` : ''}
+    </form>`;
+}
+function lbSuggestions(){
+  const have = new Set([...(S.smallWins.list||[]), ...(S.smallWins.off||[])].map(x=>x.t.toLowerCase()));
+  const out = [];
+  activeGoals().forEach(g=>{
+    const push = (t, sub, minutes, label) => {
+      if (!t || !t.trim() || have.has(t.trim().toLowerCase())) return;
+      if (out.some(x=>x.t.toLowerCase()===t.trim().toLowerCase())) return;
+      out.push({t:t.trim(), cat:g.id, sub:sub||null, minutes:minutes||null, label});
+    };
+    (g.subs||[]).forEach(sb=>{ (sb.presets||[]).forEach(t=>push(t, sb.id, sb.timed?sb.minutes:null, sb.name)); });
+    (g.presets||[]).forEach(t=>push(t, null, null, g.name));
+    if (!(g.subs||[]).length) push(g.next, null, null, g.name);
+  });
+  return out.slice(0,6);
+}
+function renderLowBattery(el){
+  const picks = todays().filter(a=>a.lb);
+  const open = picks.find(a=>!a.done);
+  const sw = S.smallWins;
+  let body;
+  if (lbEdit){
+    const sug = lbSuggestions();
+    body = `<div class="lbedit">
+      <p class="lead" style="font-size:16px;font-weight:600">Edit my small wins</p>
+      <p class="sub" style="font-size:14px">Take off what doesn’t help. Add what does.</p>
+      <ul class="opts" style="margin-top:14px">${sw.list.map((o,i)=>`<li><div class="opt static">
+        <span class="swdot" style="--accent:${accentOf(o.cat)}"></span><span class="swt">${esc(o.t)}</span>
+        ${o.locked ? `<span class="hint" style="flex:none">always here</span>`
+          : `<button class="sqbtn minus" data-act="lb-remove" data-i="${i}" aria-label="Take ${esc(o.t)} off my list">−</button>`}
+      </div></li>`).join('')}</ul>
+      ${sug.length?`<p class="swlabel">From your areas</p>
+        <ul class="opts">${sug.map((o,i)=>`<li><div class="opt static">
+          <span class="swdot" style="--accent:${accentOf(o.cat)}"></span><span class="swt">${esc(o.t)}</span>
+          <span class="swsrc" style="--accent:${accentOf(o.cat)}">${esc(o.label||'')}</span>
+          <button class="sqbtn plus" data-act="lb-add-sug" data-i="${i}" aria-label="Add ${esc(o.t)} to my list">+</button>
+        </div></li>`).join('')}</ul>`:''}
+      ${(sw.off||[]).length?`<p class="swlabel">Saved, not on your list</p>
+        <ul class="opts">${sw.off.map((o,i)=>`<li><div class="opt static">
+          <span class="swdot" style="--accent:${accentOf(o.cat)}"></span><span class="swt">${esc(o.t)}</span>
+          <button class="sqbtn plus" data-act="lb-restore" data-i="${i}" aria-label="Put ${esc(o.t)} back on my list">+</button>
+        </div></li>`).join('')}</ul>`:''}
+      <form class="row" data-form="lb-new" style="margin-top:14px">
+        <label class="sr" for="lb-t">Add your own small win</label>
+        <input class="field" id="lb-t" name="t" placeholder="Something else small…" autocomplete="off" maxlength="60">
+        <button class="btn primary" type="submit">Save</button>
+      </form>
+      <button class="btn ghost" data-act="lb-edit" style="margin-top:16px">Done editing</button>
+    </div>`;
+  } else if (!picks.length || (lbMore && !open)){
+    const done = picks.filter(a=>a.done);
+    body = `${done.length?`<p class="sub" style="font-size:14px;margin-bottom:14px">Done so far: ${done.map(a=>esc(a.title)).join(', ')}</p>`:''}
+      <p class="lead">${done.length?'What else feels doable?':'You don’t need to do everything.'}</p>
+      <p class="sub" style="font-size:16px">${done.length?'Only if you want to.':'What’s one thing worth doing today?'}</p>
+      <ul class="opts">${sw.list.map((o,i)=>`<li><button class="opt" data-act="lb-pick" data-i="${i}">
+        <span class="swdot" style="--accent:${accentOf(o.cat)}"></span>${esc(o.t)}</button></li>`).join('')}</ul>
+      <button class="linkbtn" data-act="lb-edit" style="margin-top:14px">Edit my list</button>
+      ${done.length?`<button class="linkbtn" data-act="lb-enough" style="margin-top:6px;display:block">That’s enough for today</button>`:''}`;
+  } else {
+    const doneCount = picks.filter(a=>a.done).length;
+    const rest = picks.some(a=>a.done && a.cat==='rest');
+    const word = doneCount===1 ? (rest?'Rest counts too.':'One thing counts.')
+      : doneCount===2 ? 'That’s two. Both count.'
+      : `That’s ${doneCount}. All of it counts.`;
+    body = `<p class="lead">${open?'Just this, for now.':'Done for today.'}</p>
+      <div class="one"><ul class="list" style="margin:0">${picks.map(itemHTML).join('')}</ul></div>
+      ${doneCount?`<p class="onedone">${word}</p>`:''}
+      ${open
+        ? `<button class="linkbtn" data-act="lb-repick" style="margin-top:16px">Choose a different one</button>`
+        : `<button class="linkbtn" data-act="lb-more" style="margin-top:16px">Add one more, if you want</button>`}`;
+  }
+  el.innerHTML = `<div class="lb">
+    <h2 class="title" id="h-today">Low battery mode</h2>
+    ${body}
+    ${lbEdit?'':`<button class="battery" data-act="lb-off">${ICON.battery}<span>Back to the full Today view</span></button>`}
+  </div>`;
+  if (lbEdit){ const i = document.getElementById('lb-t'); if (i && lbFocusInput){ lbFocusInput=false; i.focus({preventScroll:true}); } }
+}
+function planBlockHTML(owner, kind, label){
+  const scope = kind==='goal' ? `data-cat="${owner.id}"` : `data-sub="${owner.id}"`;
+  return `<div class="l" style="display:grid;gap:8px;font-size:14px;color:var(--muted);font-weight:600">Weekly plan
+    <span class="hint" style="margin-top:-2px">What each day looks like. Leave a day blank for rest. Tapping ${esc(label)} on Today adds that day’s session.</span>
+    <div class="plan">${DAYS.map((d,i)=>`<label class="pday ${dayIdx(today())===i?'is-today':''}">
+      <span>${d}</span>
+      <input class="field" data-planedit="${i}" data-kind="${kind}" ${scope} value="${esc((owner.plan||[])[i]||'')}" placeholder="Rest" maxlength="40" aria-label="${d} session for ${esc(label)}">
+    </label>`).join('')}</div>
+    ${!hasPlan(owner) ? `<div class="chips" style="margin-top:2px">${Object.entries(TEMPLATES).map(([k,t])=>`<button class="chip small" data-act="plan-tpl" data-kind="${kind}" ${scope} data-t="${k}">Start from ${t.name}</button>`).join('')}</div>
+      <span class="hint">Starters are just a first draft — change any day.</span>`
+      : `<button class="linkbtn" data-act="plan-clear" data-kind="${kind}" ${scope} style="justify-self:start">Clear the plan</button>`}
+  </div>`;
+}
+function renderGoals(){
+  const el = document.getElementById('v-goals');
+  const wk = weekActions();
+  el.innerHTML = `<h2 class="title" id="h-goals">Goals</h2>
+    <p class="sub">What you’re working toward. Yours to change anytime.</p>
+    <div style="margin-top:18px">${S.goals.map(g=>{
+      const n = wk.filter(a=>a.cat===g.id).length, open = openGoal===g.id;
+      return `<div class="goal ${open?'open':''} ${g.status==='pause'?'paused':''}" style="--accent:${g.color||'var(--signal)'}">
+        <button class="ghead" data-act="goal-toggle" data-cat="${g.id}" aria-expanded="${open}" aria-controls="gb-${g.id}">
+          <span class="ic">${ICON[g.icon]||ICON.target}</span>
+          <span class="gt"><span class="gn">${esc(g.name)}</span><span class="gg">${esc(g.title)||'No goal yet'}</span></span>
+          <span class="gw">${g.target ? `${n} / ${g.target} this week` : ''}</span>
+        </button>
+        <div class="gbody" id="gb-${g.id}">
+          ${field(g.id,'name','Area name','input','What to call this part of your life')}
+          ${field(g.id,'title','Current goal','input')}
+          ${field(g.id,'why','Why it matters','textarea','In your own words')}
+          ${field(g.id,'focus','Current focus','input','What you’re concentrating on right now')}
+          ${field(g.id,'next','Next step','input','One small, concrete action',`Tapping ${esc(g.name)} on Today adds this.`)}
+          ${field(g.id,'milestone','Next milestone','input','Something you’ll know you’ve reached')}
+          <div class="l" style="display:grid;gap:6px;font-size:14px;color:var(--muted);font-weight:600">Icon
+            <div class="picker" role="group" aria-label="Icon for ${esc(g.name)}">
+              ${ICON_CHOICES.map(k=>`<button data-act="goal-icon" data-cat="${g.id}" data-k="${k}" aria-pressed="${g.icon===k}" aria-label="${k}">${ICON[k]}</button>`).join('')}
+            </div>
+          </div>
+          <div class="l" style="display:grid;gap:6px;font-size:14px;color:var(--muted);font-weight:600">Colour
+            <div class="picker swatches" role="group" aria-label="Colour for ${esc(g.name)}">
+              ${COLORS.map(c=>`<button data-act="goal-color" data-cat="${g.id}" data-c="${encodeURIComponent(c)}" style="--sw:${c}" aria-pressed="${g.color===c}" aria-label="colour ${c}"></button>`).join('')}
+            </div>
+          </div>
+          <div class="l" style="display:grid;gap:6px;font-size:14px;color:var(--muted);font-weight:600">Weekly target
+            <div class="stepper">
+              <button data-act="tgt" data-cat="${g.id}" data-d="-1" aria-label="Lower weekly target">−</button>
+              <output aria-live="polite">${g.target}</output>
+              <button data-act="tgt" data-cat="${g.id}" data-d="1" aria-label="Raise weekly target">+</button>
+              <span class="hint">${g.target ? 'times a week' : 'no weekly target'}</span>
+            </div>
+          </div>
+          <div class="l" style="display:grid;gap:6px;font-size:14px;color:var(--muted);font-weight:600">Status
+            <div class="seg" role="group" aria-label="Goal status">
+              ${['keep','change','pause'].map(s=>`<button data-act="status" data-cat="${g.id}" data-s="${s}" aria-pressed="${g.status===s}">${s[0].toUpperCase()+s.slice(1)}</button>`).join('')}
+            </div>
+            <span class="hint">${g.status==='change' ? 'Rewrite the goal above. Changing course isn’t failing.' : g.status==='pause' ? 'Paused goals stay here, but leave Today’s focus list.' : 'On track to keep going.'}</span>
+          </div>
+          ${(g.subs||[]).length ? '' : `<label class="l" for="gp-${g.id}">Usual items<input class="field" id="gp-${g.id}" data-goalpresets="1" data-cat="${g.id}" value="${esc((g.presets||[]).join(', '))}" placeholder="Usual items, separated by commas" maxlength="200"><span class="hint">These show as one-tap adds on Today.</span></label>`}
+          ${(g.subs||[]).length ? '' : `<div class="l" style="display:grid;gap:8px;font-size:14px;color:var(--muted);font-weight:600">Sessions
+            <button class="toggle" data-act="goal-timed" data-cat="${g.id}" aria-pressed="${!!g.timed}">${ICON.check2}<span>Ask how long when I start one</span></button>
+            ${g.timed ? `<div class="seg small" role="group" aria-label="Suggested length for ${esc(g.name)}">
+              ${MINUTE_CHOICES.filter(m=>m>=15).map(m=>`<button data-act="goal-min" data-cat="${g.id}" data-m="${m}" aria-pressed="${g.minutes===m}">${m===60?'60 + breaks':m+'m'}</button>`).join('')}
+            </div><span class="hint">The suggested length, highlighted in the prompt. He can pick another every time.</span>` : ''}
+          </div>`}
+          ${(g.subs||[]).length ? '' : planBlockHTML(g,'goal',g.name)}
+          <div class="l" style="display:grid;gap:10px;font-size:14px;color:var(--muted);font-weight:600">Sub-areas
+            <span class="hint" style="margin-top:-4px">Break a big area into smaller ones — Cooking, Cleaning, Errands. Each one holds its own short list on Today.</span>
+            ${(g.subs||[]).map(sb=>`<div class="subedit">
+              <div class="row">
+                <label class="sr" for="sn-${sb.id}">Sub-area name</label>
+                <input class="field" id="sn-${sb.id}" data-subedit="name" data-sub="${sb.id}" value="${esc(sb.name)}" maxlength="28">
+                <button class="x" data-act="sub-delete" data-sub="${sb.id}" aria-label="Delete ${esc(sb.name)}">${ICON.x.replace('<svg','<svg width="18" height="18"')}</button>
+              </div>
+              <label class="sr" for="sp-${sb.id}">Usual items in ${esc(sb.name)}</label>
+              <input class="field" id="sp-${sb.id}" data-subedit="presets" data-sub="${sb.id}" value="${esc(sb.presets.join(', '))}" placeholder="Usual items, separated by commas" maxlength="200">
+              <button class="toggle" data-act="sub-timed" data-sub="${sb.id}" aria-pressed="${!!sb.timed}">${ICON.check2}<span>Work in timed sessions</span></button>
+              ${sb.timed ? `<div class="seg small" role="group" aria-label="Window length for ${esc(sb.name)}">
+                ${MINUTE_CHOICES.map(m=>`<button data-act="sub-min" data-sub="${sb.id}" data-m="${m}" aria-pressed="${sb.minutes===m}">${m===60?'60 + breaks':m+'m'}</button>`).join('')}
+              </div>` : ''}
+              <button class="toggle" data-act="pin-sub" data-sub="${sb.id}" aria-pressed="${!!sb.pin}">${ICON.check2}<span>Show on Today’s focus row</span></button>
+              ${openPlan===sb.id
+                ? planBlockHTML(sb,'sub',sb.name||'this')
+                : `<button class="linkbtn" data-act="plan-open" data-sub="${sb.id}" style="justify-self:start">${hasPlan(sb)?`Weekly plan · ${sb.plan.filter(x=>x&&x.trim()).length} day${sb.plan.filter(x=>x&&x.trim()).length===1?'':'s'}`:'Add a weekly plan'}</button>`}
+            </div>`).join('')}
+            <button class="linkbtn" data-act="sub-new" data-cat="${g.id}">+ Add a sub-area</button>
+          </div>
+          <button class="linkbtn danger" data-act="goal-delete" data-cat="${g.id}">Delete this goal</button>
+        </div>
+      </div>`;}).join('')}</div>
+    <div class="add">
+      <button class="addbtn" data-act="goal-add-open" aria-expanded="${goalAddOpen}" ${goalAddOpen?'hidden':''}>${ICON.plus.replace('<svg','<svg width="20" height="20"')} Add a goal</button>
+      <form class="addform ${goalAddOpen?'on':''}" data-form="goal-add">
+        <label class="l" for="gn">Area name<input class="field" id="gn" name="n" placeholder="Music, Money, Sleep…" autocomplete="off" required maxlength="24"></label>
+        <label class="l" for="gg">What you’re working toward<input class="field" id="gg" name="g" placeholder="Optional for now" autocomplete="off" maxlength="80"></label>
+        <div class="l">Icon
+          <div class="picker" role="group" aria-label="Icon for the new goal">
+            ${ICON_CHOICES.map(k=>`<button type="button" data-act="new-icon" data-k="${k}" aria-pressed="${newIcon===k}" aria-label="${k}">${ICON[k]}</button>`).join('')}
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn primary" type="submit">Add goal</button>
+          <button class="btn ghost" type="button" data-act="goal-add-close">Cancel</button>
+        </div>
+      </form>
+    </div>`;
+  if (goalAddOpen) setTimeout(()=>{ const i=document.getElementById('gn'); i && i.focus(); },0);
+}
+function field(gid,key,label,type,ph='',hint=''){
+  const v = esc(goalOf(gid)[key]);
+  const id = `f-${gid}-${key}`;
+  const ctl = type==='textarea'
+    ? `<textarea class="field" id="${id}" data-edit="${key}" data-cat="${gid}" placeholder="${esc(ph)}" maxlength="280">${v}</textarea>`
+    : `<input class="field" id="${id}" data-edit="${key}" data-cat="${gid}" value="${v}" placeholder="${esc(ph)}" maxlength="80">`;
+  return `<label class="l" for="${id}">${label}${ctl}${hint?`<span class="hint">${hint}</span>`:''}</label>`;
+}
+
+function renderRoadmap(){
+  const el = document.getElementById('v-roadmap');
+  const wk = weekActions();
+  const day = Math.max(1, daysBetween(S.roadmapStart, today())+1);
+  const shown = Math.min(day,90);
+  const over = day > 90;
+  el.innerHTML = `<h2 class="title" id="h-roadmap">Roadmap</h2>
+    <p class="sub">A 90-day cycle, started ${esc(fmt(S.roadmapStart,{month:'long',day:'numeric'}))}.</p>
+    <p class="day"><strong>Day ${shown}</strong> of 90</p>
+    <div class="bar" aria-hidden="true"><i style="width:${shown/90*100}%"></i></div>
+    ${over ? `<p class="sub" style="margin-top:12px">This cycle is complete. Start a new one when you’re ready.</p>` : ''}
+    <ol class="phases">${PHASES.map(p=>{
+      const cls = day>p.to ? 'past' : (day>=p.from ? 'now' : '');
+      return `<li class="phase ${cls}"><span class="dot" aria-hidden="true"></span><h4>${p.n}</h4><p>${p.d} · days ${p.from}–${p.to}${cls==='now'?' <span class="sr">(current phase)</span>':''}</p></li>`;
+    }).join('')}</ol>
+    <h3 class="q">Goals this cycle</h3>
+    <ul class="cycle">${S.goals.length ? S.goals.map(g=>{
+      const open = openCycle===g.id, n = wk.filter(a=>a.cat===g.id).length;
+      const label = g.status==='keep'?'Keep':g.status==='change'?'Change':'Paused';
+      return `<li class="st-${g.status} ${open?'open':''}" style="--accent:${g.color||'var(--signal)'}">
+        <button class="cycrow" data-act="cyc-open" data-cat="${g.id}" aria-expanded="${open}">
+          <span class="cyc">${esc(g.name)}: ${esc(g.title)||'No goal yet'}</span>
+          <span class="cycst">${label}</span>
+          <span class="chev" aria-hidden="true">${open?'⌃':'›'}</span>
+        </button>
+        ${open?`<div class="cycbody">
+          <p class="hint">${g.target?`${n} of ${g.target} this week`:`${n} this week`}${g.milestone?` · next milestone: ${esc(g.milestone)}`:''}</p>
+          <div class="btnrow">
+            ${['keep','change','pause'].map(st=>`<button class="btn ${g.status===st?'primary':'ghost'}" data-act="status" data-cat="${g.id}" data-s="${st}">${st[0].toUpperCase()+st.slice(1)}</button>`).join('')}
+            <button class="btn ghost" data-act="goto-goal" data-cat="${g.id}">Edit in Goals</button>
+          </div>
+          <p class="hint">${g.status==='change'?'Rewrite the goal in Goals. Changing course isn’t failing.':g.status==='pause'?'Paused goals stay here, but leave Today’s focus row.':'On track to keep going.'}</p>
+        </div>`:''}
+      </li>`;
+    }).join('') : '<li><span class="cyc">No goals yet. Add one in Goals.</span></li>'}</ul>
+    <div class="row" style="margin-top:26px;align-items:end;flex-wrap:wrap">
+      <label class="l" for="rs" style="flex:1;min-width:180px">Cycle start date<input class="field" type="date" id="rs" data-act="start" value="${S.roadmapStart}" max="${today()}"></label>
+      <button class="btn ghost" data-act="new-cycle">Start a new 90 days</button>
+    </div>`;
+}
+
+function renderProgress(){
+  const el = document.getElementById('v-progress');
+  const ws = weekStart(), wk = weekActions(ws);
+  const intentional = wk.filter(a=>a.cat!=='rest').length;
+  const rested = wk.filter(a=>a.cat==='rest').length;
+  const last = weekActions(addDays(ws,-7)).filter(a=>a.cat!=='rest').length;
+  const range = `${fmt(ws,{month:'short',day:'numeric'})} – ${fmt(addDays(ws,6),{month:'short',day:'numeric'})}`;
+  el.innerHTML = `<h2 class="title" id="h-progress">Progress</h2>
+    <p class="sub">This week, ${esc(range)}</p>
+    <div class="big"><strong>${intentional}</strong><span>intentional action${intentional===1?'':'s'} this week</span></div>
+    ${intentional===0 && rested===0 ? `<p class="note" style="margin-top:14px">Check something off on Today and it shows up here.</p>` : ''}
+    <div style="margin-top:26px">${S.goals.map(g=>{
+      const n=wk.filter(a=>a.cat===g.id).length;
+      if (!g.target && !n) return '';
+      const subRows = (g.subs||[]).map(sb=>({sb, c:wk.filter(a=>a.sub===sb.id).length})).filter(x=>x.c>0);
+      return `<div class="prow" style="--accent:${g.color||'var(--signal)'}">${ICON[g.icon]||ICON.target}<div class="pl">${esc(g.unit||g.name)}${g.target?`<div class="dots" aria-hidden="true">${Array.from({length:g.target},(_,i)=>`<i class="${i<n?'f':''}"></i>`).join('')}</div>`:''}</div>
+        <span class="pv">${n}${g.target?` <small>/ ${g.target}</small>`:''}</span></div>
+        ${subRows.map(x=>`<div class="psub" style="--accent:${g.color||'var(--signal)'}"><span>${esc(x.sb.name)}</span><span>${x.c}</span></div>`).join('')}`;
+    }).join('')}
+    ${rested ? `<div class="prow">${ICON.rest}<div class="pl">Rested on purpose</div><span class="pv">${rested}</span></div>` : ''}</div>
+    ${last ? `<p class="note">Last week: ${last} intentional action${last===1?'':'s'}.</p>` : ''}
+    <p class="note">Every finished action lights a window in the skyline. The count starts fresh each Monday.</p>
+    <button class="reset" data-act="reset">Clear all data and start over</button>`;
+}
+
+function render(){
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on', v.id==='v-'+tab));
+  document.querySelectorAll('nav.tabs button').forEach(b=>{
+    if (b.dataset.tab===tab) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
+  });
+  ({today:renderToday,goals:renderGoals,roadmap:renderRoadmap,progress:renderProgress})[tab]();
+  lightSkyline();
+}
+
+/* ---------- actions ---------- */
+let toastT;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2000); }
+function addAction(cat,title,extra={},day){
+  title = title.trim(); if (!title) return false;
+  const k = day || vday();
+  if (dayList(k).some(a=>a.title.toLowerCase()===title.toLowerCase() && !a.lb)){ toast(isToday()?'Already on today':'Already on that day'); return false; }
+  S.actions.push({id:uid(),cat,title,date:k,done:false,state:'todo',...extra}); save(); return true;
+}
+function prune(){ // keep 120 days of history; V1 has no need for more
+  const cutoff = addDays(today(),-120); S.actions = S.actions.filter(a=>a.date>=cutoff);
+}
+
+document.addEventListener('click', e=>{
+  const tb = e.target.closest('nav.tabs button');
+  if (tb){ tab = tb.dataset.tab; openGoal=null; addOpen=false; viewDay=null; planAhead=false; spanDays=0; dayAddOpen=null; openSub=null; openGoalChip=null; chipFocus=false; render(); window.scrollTo({top:0}); return; }
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act, id = b.dataset.id, cat = b.dataset.cat;
+  switch(act){
+    case 'toggle': {
+      const a = S.actions.find(x=>x.id===id); if (!a) break;
+      a.done = !a.done;
+      a.state = a.done ? 'done' : 'todo';
+      if (a.done){ a.endsAt = null; justLit = weekActions().length - 1; }
+      save(); render(); break;
+    }
+    case 'remove': S.actions = S.actions.filter(x=>x.id!==id); openItem=null; save(); render(); break;
+    case 'focus': {
+      const g = goalOf(cat); if (!g) break;
+      const closing = openGoalChip===g.id;
+      openGoalChip = closing ? null : g.id;
+      chipFocus = !closing; openSub = null; render();
+      if (!closing){ const i = document.getElementById('sub-t'); if (i && !(g.subs||[]).length) i.focus({preventScroll:true}); }
+      break;
+    }
+    case 'sub-open': {
+      const sid = b.dataset.sub, f = subOf(sid); if (!f) break;
+      openGoalChip = f.goal.id;
+      chipFocus = true;
+      openItem = null;
+      openSub = openSub===sid ? null : sid;
+      render();
+      if (openSub){ const i = document.getElementById('sub-t'); if (i){ i.focus({preventScroll:true}); i.scrollIntoView && i.scrollIntoView({block:'center'}); } }
+      break;
+    }
+    case 'planned': {
+      const f = subOf(b.dataset.sub); if (!f) break;
+      if (addAction(f.goal.id, plannedToday(f.sub), {sub:f.sub.id, minutes:f.sub.minutes})){ chipFocus = false; render(); }
+      break;
+    }
+    case 'preset': {
+      const f = b.dataset.sub ? subOf(b.dataset.sub) : null;
+      if (f){ if (addAction(f.goal.id, f.sub.presets[+b.dataset.i], {sub:f.sub.id, minutes:f.sub.minutes})){ chipFocus = false; render(); } break; }
+      const g = goalOf(openGoalChip); if (!g) break;
+      const list = (g.presets && g.presets.length) ? g.presets : (g.next?[g.next]:[]);
+      if (addAction(g.id, list[+b.dataset.i]||'')){ chipFocus = false; render(); }
+      break;
+    }
+    case 'item-menu': openItem = openItem===id ? null : id; render(); break;
+    case 'setstate': {
+      const a = S.actions.find(x=>x.id===id); if (!a) break;
+      const st = b.dataset.s;
+      if (st==='done'){
+        if (!a.done){ a.done = true; a.state = 'done'; a.endsAt = null; justLit = weekActions().length-1; }
+      } else if (st==='doing'){
+        a.done = false;
+        if (a.state==='progress' && a.paused){ a.endsAt = Date.now() + a.paused; a.paused = null; save(); render(); break; }
+        if (isTimed(a) && a.state!=='progress'){ openStart = id; openItem = null; save(); render(); break; }
+        startWindow(id); break;
+      } else {
+        a.done = false; a.state = 'todo'; a.endsAt = null; a.paused = null;
+      }
+      save(); render(); break;
+    }
+    case 'start': if (isTimed(S.actions.find(x=>x.id===id)||{})){ openStart = id; render(); } else startWindow(id); break;
+    case 'start-len': startWindow(id, +b.dataset.m); break;
+    case 'pause': {
+      const a = S.actions.find(x=>x.id===id); if (!a || !a.endsAt) break;
+      a.paused = Math.max(1000, a.endsAt - Date.now()); a.endsAt = null; save(); render();
+      toast('Paused — the time is held'); break;
+    }
+    case 'resume': {
+      const a = S.actions.find(x=>x.id===id); if (!a || !a.paused) break;
+      a.endsAt = Date.now() + a.paused; a.paused = null; openItem = null; save(); render(); break;
+    }
+    case 'blk-next': {
+      const a = S.actions.find(x=>x.id===id); if (!a) break;
+      a.bi = (a.bi||0)+1; a.paused = null;
+      a.endsAt = Date.now() + BLOCKS[a.bi]*60000;
+      save(); render(); break;
+    }
+    case 'blk-skip': {
+      const a = S.actions.find(x=>x.id===id); if (!a) break;
+      a.bi = Math.min((a.bi||0)+2, BLOCKS.length-1); a.paused = null;
+      a.endsAt = Date.now() + BLOCKS[a.bi]*60000;
+      save(); render(); break;
+    }
+    case 'stop': { const a = S.actions.find(x=>x.id===id); if (a){ a.state='todo'; a.endsAt=null; a.paused=null; a.bi=null; a.blocks=false; save(); render(); } break; }
+    case 'uncomplete': { const a = S.actions.find(x=>x.id===id); if (a){ a.done=false; a.state='todo'; save(); render(); } break; }
+    case 'tomorrow': {
+      const a = S.actions.find(x=>x.id===id); if (!a) break;
+      a.date = addDays(a.date,1); a.state='todo'; a.endsAt=null; a.done=false; openItem=null; save(); render();
+      toast(`Moved to ${fmt(a.date,{weekday:'long'})}`); break;
+    }
+    case 'more': { const a = S.actions.find(x=>x.id===id); if (a){ a.endsAt = Math.max(Date.now(), a.endsAt||0) + (a.minutes||10)*60000; save(); render(); } break; }
+    case 'finish': { const a = S.actions.find(x=>x.id===id); if (a){ a.done = true; a.state = 'done'; a.endsAt=null; a.paused=null; openItem=null; justLit = weekActions().length-1; save(); render(); } break; }
+    case 'next': {
+      const a = S.actions.find(x=>x.id===id);
+      if (a){ a.done = true; a.state = 'done'; justLit = weekActions().length-1; save();
+        const nxt = todays().find(x=>x.sub===a.sub && !x.done && x.state!=='skip' && x.id!==a.id);
+        if (nxt) startWindow(nxt.id); else { render(); toast('That group is clear'); }
+      }
+      break;
+    }
+    case 'skip': { const a = S.actions.find(x=>x.id===id); if (a){ a.state = 'skip'; a.endsAt = null; openItem=null; save(); render(); } break; }
+    case 'unskip': { const a = S.actions.find(x=>x.id===id); if (a){ a.state = 'todo'; openItem=null; save(); render(); } break; }
+    case 'carry': { const a = S.actions.find(x=>x.id===id); if (a && addAction(a.cat,a.title)) render(); break; }
+    case 'carry-done': S.carryHandled = today(); save(); render(); break;
+    case 'all-areas': chipFocus = false; render(); break;
+    case 'ahead': {
+      const on = planAhead || spanDays;
+      planAhead = !on; if (on){ spanDays = 0; viewDay = null; dayAddOpen = null; }
+      render(); break;
+    }
+    case 'span': {
+      spanDays = +b.dataset.n; viewDay = null; dayAddOpen = null;
+      planAhead = true; openSub = null; openGoalChip = null; chipFocus = false; render(); break;
+    }
+    case 'open-day': spanDays = 0; viewDay = b.dataset.d; planAhead = true; dayAddOpen = null; render(); window.scrollTo({top:0}); break;
+    case 'day-add-open': dayAddOpen = b.dataset.d; render(); { const i = document.getElementById('day-t'); if (i){ i.focus({preventScroll:true}); i.scrollIntoView && i.scrollIntoView({block:'center'}); } } break;
+    case 'sug': {
+      const k = b.dataset.d, x = planSuggestions(k)[+b.dataset.i]; if (!x) break;
+      if (addAction(x.goal, x.t, x.sub?{sub:x.sub, minutes:x.minutes}:{}, k)) render();
+      break;
+    }
+    case 'day': viewDay = b.dataset.d; planAhead = true; openSub = null; openGoalChip = null; chipFocus = false; render(); break;
+    case 'add-open': addOpen = true; render(); break;
+    case 'add-close': addOpen = false; render(); break;
+    case 'lb-on': S.lowBatteryDate = today(); lbEdit = false; lbMore = false; save(); render(); window.scrollTo({top:0}); break;
+    case 'lb-off': S.lowBatteryDate = null; lbEdit = false; lbMore = false; save(); render(); break;
+    case 'lb-pick': {
+      const o = S.smallWins.list[+b.dataset.i]; if (!o) break;
+      if (todays().some(a=>a.lb && a.title===o.t)){ toast('Already chosen today'); break; }
+      S.actions.push({id:uid(),cat:o.cat,sub:o.sub||null,minutes:o.minutes||null,title:o.t,date:today(),done:false,state:'todo',lb:true});
+      lbMore = false; save(); render(); break;
+    }
+    case 'lb-edit': lbEdit = !lbEdit; render(); window.scrollTo({top:0}); break;
+    case 'lb-remove': {
+      const i = +b.dataset.i, o = S.smallWins.list[i];
+      if (!o || o.locked) break;
+      if (S.smallWins.list.length <= LB_MIN){ toast(`Keeping ${LB_MIN} options here`); break; }
+      S.smallWins.list.splice(i,1); S.smallWins.off.unshift(o); save(); render(); break;
+    }
+    case 'lb-add-sug': {
+      const o = lbSuggestions()[+b.dataset.i]; if (!o) break;
+      S.smallWins.list.push({id:uid(), t:o.t, cat:o.cat, sub:o.sub, minutes:o.minutes});
+      save(); render(); break;
+    }
+    case 'lb-restore': {
+      const o = S.smallWins.off.splice(+b.dataset.i,1)[0]; if (!o) break;
+      S.smallWins.list.push(o); save(); render(); break;
+    }
+    case 'lb-repick': S.actions = S.actions.filter(a=>!(a.lb && a.date===today() && !a.done)); lbMore = false; save(); render(); break;
+    case 'lb-more': lbMore = true; render(); break;
+    case 'lb-enough': lbMore = false; render(); break;
+    case 'goal-toggle': openGoal = openGoal===cat ? null : cat; goalAddOpen = false; render(); break;
+    case 'tgt': { const g=goalOf(cat); g.target = Math.max(0,Math.min(7,g.target + +b.dataset.d)); save(); render(); break; }
+    case 'status': goalOf(cat).status = b.dataset.s; save(); render(); break;
+    case 'goal-timed': { const g = goalOf(cat); if (g){ g.timed = !g.timed; if (!g.minutes) g.minutes = 30; save(); render(); } break; }
+    case 'goal-min': { const g = goalOf(cat); if (g){ g.minutes = +b.dataset.m; save(); render(); } break; }
+    case 'pin-sub': { const f = subOf(b.dataset.sub); if (f){ f.sub.pin = !f.sub.pin; save(); render(); } break; }
+    case 'cyc-open': openCycle = openCycle===cat ? null : cat; render(); break;
+    case 'goto-goal': tab = 'goals'; openGoal = cat; openCycle = null; render(); window.scrollTo({top:0}); break;
+    case 'plan-open': openPlan = openPlan===b.dataset.sub ? null : b.dataset.sub; render(); break;
+    case 'plan-tpl': { const o = planOwner(b); if (o){ o.plan = TEMPLATES[b.dataset.t].days.slice(); save(); render(); } break; }
+    case 'plan-clear': { const o = planOwner(b); if (o){ o.plan = ['','','','','','','']; save(); render(); } break; }
+    case 'sub-new': {
+      const g = goalOf(cat); if (!g) break;
+      g.subs = g.subs || [];
+      g.subs.push(SUB(uid(),'',30,[]));
+      save(); render();
+      const inputs = document.querySelectorAll(`#gb-${g.id} [data-subedit="name"]`);
+      const last = inputs[inputs.length-1]; if (last){ last.focus({preventScroll:true}); last.scrollIntoView && last.scrollIntoView({block:'center'}); }
+      break;
+    }
+    case 'sub-delete': {
+      const f = subOf(b.dataset.sub); if (!f) break;
+      const n = todays().filter(a=>a.sub===f.sub.id).length;
+      if (confirm(`Delete “${f.sub.name || 'this sub-area'}”?${n?` ${n} item${n===1?'':'s'} on Today will move out of the group but stay on your list.`:''}`)){
+        f.goal.subs = f.goal.subs.filter(x=>x.id!==f.sub.id);
+        S.actions.forEach(a=>{ if (a.sub===f.sub.id) a.sub = null; });
+        if (openSub===f.sub.id) openSub = null;
+        save(); render();
+      }
+      break;
+    }
+    case 'sub-timed': { const f = subOf(b.dataset.sub); if (f){ f.sub.timed = !f.sub.timed; save(); render(); } break; }
+    case 'sub-min': { const f = subOf(b.dataset.sub); if (f){ f.sub.minutes = +b.dataset.m; save(); render(); } break; }
+    case 'goal-color': { const g = goalOf(cat); if (g){ g.color = decodeURIComponent(b.dataset.c); save(); render(); } break; }
+    case 'goal-icon': goalOf(cat).icon = b.dataset.k; save(); render(); break;
+    case 'goal-add-open': goalAddOpen = true; openGoal = null; render(); break;
+    case 'goal-add-close': goalAddOpen = false; render(); break;
+    case 'new-icon': newIcon = b.dataset.k; render(); break;
+    case 'goal-delete': {
+      const g = goalOf(cat); if (!g) break;
+      const onToday = todays().some(a=>a.cat===g.id);
+      if (confirm(`Delete “${g.name}”? Its goal and weekly target go away. Anything you’ve already checked off stays in your history.`)){
+        S.goals = S.goals.filter(x=>x.id!==g.id);
+        if (onToday) toast('Today’s items from that area are still there');
+        openGoal = null; save(); render();
+      }
+      break;
+    }
+    case 'new-cycle':
+      if (confirm('Start a new 90-day cycle from today? Your goals and history stay as they are.')){ S.roadmapStart = today(); save(); render(); }
+      break;
+    case 'reset':
+      if (confirm('Clear everything and start over with the starter setup? This can’t be undone.')){ localStorage.removeItem(KEY); S = seed(); save(); tab='today'; render(); }
+      break;
+  }
+});
+function planOwner(el){
+  if (el.dataset.kind==='sub'){ const f = subOf(el.dataset.sub); return f && f.sub; }
+  return goalOf(el.dataset.cat);
+}
+function startWindow(id, mins){
+  const a = S.actions.find(x=>x.id===id); if (!a) return;
+  const cur = running();
+  if (cur && cur.id!==a.id){ cur.state = 'todo'; cur.endsAt = null; cur.paused = null; cur.bi = null; }
+  a.state = 'progress';
+  const timed = isTimed(a) && mins !== 0;
+  if (timed){
+    const o = timeOwner(a);
+    const m = mins || a.minutes || (o && o.minutes) || 30;
+    a.minutes = m;
+    a.blocks = m===60;
+    a.bi = a.blocks ? 0 : null;
+    a.endsAt = Date.now() + (a.blocks ? BLOCKS[0] : m)*60000; a.paused = null;
+    S.lastLen = S.lastLen||{}; S.lastLen[lenKey(a)] = m;
+  } else {
+    a.blocks = false; a.bi = null; a.endsAt = null; a.paused = null;
+  }
+  openItem = null; openStart = null;
+  save(); render();
+}
+function blockInfo(a){
+  if (!a.blocks) return null;
+  const i = a.bi||0, work = BLOCKS.filter(x=>x>=15).length;
+  return {i, isBreak: i%2===1, workNo: Math.floor(i/2)+1, works: work, last: i>=BLOCKS.length-1};
+}
+let wasOver = false;
+setInterval(()=>{
+  const a = ticking(); if (!a) { wasOver = false; return; }
+  const left = (a.endsAt||0) - Date.now();
+  const elc = document.getElementById('t-'+a.id);
+  if (left > 0){ wasOver = false; if (elc) elc.textContent = mmss(left); }
+  else if (!wasOver){ wasOver = true; render(); }
+}, 1000);
+
+document.addEventListener('submit', e=>{
+  if (e.target.dataset.form==='goal-add'){
+    e.preventDefault();
+    const f = e.target, nameEl = f.querySelector('[name="n"]'), goalEl = f.querySelector('[name="g"]'), name = nameEl.value.trim();
+    if (!name) return;
+    const g = {id:uid(),name,icon:newIcon,unit:name,title:goalEl.value.trim(),why:'',focus:'',next:'',milestone:'',target:0,status:'keep'};
+    S.goals.push(g); goalAddOpen = false; newIcon = 'target'; openGoal = g.id; save(); render();
+    toast(`${name} added`);
+    return;
+  }
+  if (e.target.dataset.form==='lb-new'){
+    e.preventDefault();
+    const inp = e.target.querySelector('[name="t"]'), t = inp.value.trim();
+    if (!t) return;
+    const all = [...S.smallWins.list, ...S.smallWins.off];
+    if (all.some(x=>x.t.toLowerCase()===t.toLowerCase())){ toast('Already on your list'); return; }
+    S.smallWins.list.push({id:uid(), t, cat:'none', sub:null});
+    inp.value=''; lbFocusInput = true; save(); render();
+    return;
+  }
+  if (e.target.dataset.form==='day-add'){
+    e.preventDefault();
+    const f = e.target, inp = f.querySelector('[name="t"]'), k = f.dataset.d;
+    if (!inp.value.trim()) return;
+    if (addAction('none', inp.value, {}, k)){ inp.value=''; render();
+      const again = document.getElementById('day-t'); if (again) again.focus({preventScroll:true});
+    }
+    return;
+  }
+  if (e.target.dataset.form==='sub-add'){
+    e.preventDefault();
+    const f = e.target, inp = f.querySelector('[name="t"]');
+    const sf = f.dataset.sub ? subOf(f.dataset.sub) : (openGoalChip ? {goal:goalOf(openGoalChip), sub:null} : null);
+    if (!sf || !sf.goal || !inp.value.trim()) return;
+    if (addAction(sf.goal.id, inp.value, sf.sub?{sub:sf.sub.id, minutes:sf.sub.minutes}:{})){ inp.value=''; chipFocus = false; render();
+      const again = document.getElementById('sub-t'); if (again) again.focus({preventScroll:true});
+    }
+    return;
+  }
+  if (e.target.dataset.form==='add'){
+    e.preventDefault();
+    const f = e.target;
+    if (addAction(f.querySelector('[name="c"]').value, f.querySelector('[name="t"]').value)){ addOpen=false; render(); }
+  }
+});
+document.addEventListener('input', e=>{
+  const t = e.target;
+  if (t.dataset.goalpresets){
+    const g = goalOf(t.dataset.cat); if (!g) return;
+    g.presets = t.value.split(',').map(x=>x.trim()).filter(Boolean); save(); return;
+  }
+  if (t.dataset.planedit !== undefined){
+    const o = planOwner(t); if (!o) return;
+    o.plan[+t.dataset.planedit] = t.value; save(); return;
+  }
+  if (t.dataset.subedit){
+    const f = subOf(t.dataset.sub); if (!f) return;
+    if (t.dataset.subedit==='presets') f.sub.presets = t.value.split(',').map(x=>x.trim()).filter(Boolean);
+    else f.sub.name = t.value;
+    save(); return;
+  }
+  if (t.dataset.edit){
+    const gg = goalOf(t.dataset.cat);
+    if (t.dataset.edit==='name' && (!gg.unit || gg.unit===gg.name)) gg.unit = t.value;
+    gg[t.dataset.edit] = t.value; save();
+    if (t.dataset.edit==='title'){ t.closest('.goal').querySelector('.gg').textContent = t.value || 'No goal yet'; }
+    if (t.dataset.edit==='name') t.closest('.goal').querySelector('.gn').textContent = t.value || 'Untitled area';
+  }
+});
+document.addEventListener('change', e=>{
+  if (e.target.dataset.act==='start' && e.target.value){ S.roadmapStart = e.target.value; save(); render(); }
+});
+
+// A new day starts clean if the tab stays open overnight
+let lastDay = today();
+setInterval(()=>{ if (today()!==lastDay){ lastDay=today(); render(); } }, 60000);
+
+prune(); save();
+buildSkyline();
+render();
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
