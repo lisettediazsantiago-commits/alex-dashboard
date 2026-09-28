@@ -41,6 +41,8 @@ header.top{position:relative;padding:28px 0 0}
 .skyline{display:block;width:100%;height:auto;margin-top:18px}
 .skyline .w{fill:#223151;transition:fill .5s ease}
 .skyline .w.lit{fill:var(--window)}
+.skyline.full .w{fill:var(--window)}
+.skyline.full{filter:drop-shadow(0 0 5px rgba(255,217,138,.35))}
 .skyline .w.new{animation:glow 1.2s ease}
 @keyframes glow{0%{fill:#fff;filter:drop-shadow(0 0 6px var(--window))}100%{fill:var(--window)}}
 .ground{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent)}
@@ -73,7 +75,7 @@ h3.q .qsub{font-size:13px;font-weight:500;color:var(--muted)}
 .sseg{display:flex;flex:none;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--night-2)}
 .sseg button{padding:8px 9px;font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--muted);white-space:nowrap}
 .sseg button:hover{color:var(--text)}
-.sseg button[aria-pressed="true"]{background:var(--accent);color:#0D1422}
+.sseg button[aria-checked="true"]{background:var(--accent);color:#0D1422}
 .item.st-doing{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 12%,transparent),transparent);border-radius:14px;margin-inline:-8px;padding-inline:8px}
 .x{flex:none;width:32px;height:32px;border-radius:8px;color:var(--faint);display:grid;place-items:center}
 .x:hover{color:var(--text);background:var(--panel)}
@@ -85,6 +87,7 @@ h3.q .qsub{font-size:13px;font-weight:500;color:var(--muted)}
 .item .tag.on-tag{color:var(--accent)}
 .item .tag.done-tag{color:var(--faint)}
 .item.menu{background:var(--night-2);border-radius:14px;margin-inline:-8px;padding-inline:8px}
+.btn[disabled]{opacity:.35;pointer-events:none}
 .btn.ghost.danger{color:var(--muted)}
 .btn.ghost.danger:hover{color:#FF9B9B;border-color:#FF9B9B}
 .tally{margin:14px 0 0;color:var(--muted);font-size:15px}
@@ -332,6 +335,8 @@ nav.tabs button[aria-current="page"]{color:var(--signal)}
 
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;background:var(--panel-2);border:1px solid var(--line);padding:10px 16px;border-radius:999px;font-size:14px;transition:.25s;pointer-events:none;z-index:6;white-space:nowrap}
 .toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.act{pointer-events:auto;display:flex;align-items:center;gap:12px}
+.undobtn{flex:none;color:var(--signal);font-weight:700;font-size:var(--fs-sm);padding:4px 2px;text-decoration:underline}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
 @media (min-width:720px){
@@ -391,6 +396,13 @@ h3.q .qsub{font-size:var(--fs-sm)}
 .ttext .t,.one .item .t{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;font-size:var(--fs-base);line-height:1.35}
 .one .item .t{font-size:var(--fs-lg)}
 .planned-row .t{font-size:var(--fs-base);white-space:normal;overflow-wrap:anywhere}
+.past-row .t{font-size:var(--fs-base);white-space:normal;overflow-wrap:anywhere}
+.past-row .sseg button{padding:8px clamp(10px,3vw,13px)}
+.past-row .sseg button[aria-checked="true"][data-s="todo"]{background:var(--line);color:var(--muted)}
+.past-row.st-done .ttext .t{color:var(--muted)}
+.daystrip button.past{opacity:.72}
+.daystrip button.past em{color:var(--muted)}
+.daystrip button.past[aria-pressed="true"]{opacity:1}
 .subtag{font-size:clamp(9.5px,2.7vw,10.5px);min-height:32px;padding:6px 8px}
 .sub2{font-size:var(--fs-xs)}
 .sseg button{min-height:38px;padding:8px clamp(8px,2.6vw,11px);font-size:clamp(10.5px,3vw,11.5px)}
@@ -504,19 +516,19 @@ nav.tabs svg{width:clamp(20px,6vw,22px);height:clamp(20px,6vw,22px)}
   </header>
 
   <main>
-    <section class="view on" id="v-today" aria-label="Today"></section>
-    <section class="view" id="v-goals" aria-label="Goals"></section>
-    <section class="view" id="v-roadmap" aria-label="Roadmap"></section>
-    <section class="view" id="v-progress" aria-label="Progress"></section>
+    <section class="view on" id="v-today" role="tabpanel" aria-label="Today"></section>
+    <section class="view" id="v-goals" role="tabpanel" aria-label="Goals"></section>
+    <section class="view" id="v-roadmap" role="tabpanel" aria-label="Roadmap"></section>
+    <section class="view" id="v-progress" role="tabpanel" aria-label="Progress"></section>
   </main>
 </div>
 
 <nav class="tabs" aria-label="Main">
-  <div class="in">
-    <button data-tab="today" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></svg>Today</button>
-    <button data-tab="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor"/></svg>Goals</button>
-    <button data-tab="roadmap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/></svg>Roadmap</button>
-    <button data-tab="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V14M10 20V9M16 20V12M22 20H2M20 20V5"/></svg>Progress</button>
+  <div class="in" role="tablist">
+    <button data-tab="today" role="tab" aria-selected="true" aria-controls="v-today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></svg>Today</button>
+    <button data-tab="goals" role="tab" aria-selected="false" aria-controls="v-goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor"/></svg>Goals</button>
+    <button data-tab="roadmap" role="tab" aria-selected="false" aria-controls="v-roadmap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/></svg>Roadmap</button>
+    <button data-tab="progress" role="tab" aria-selected="false" aria-controls="v-progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V14M10 20V9M16 20V12M22 20H2M20 20V5"/></svg>Progress</button>
   </div>
 </nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -897,10 +909,12 @@ function nudge(a){                                          // one gentle nudge 
 document.addEventListener('visibilitychange', ()=>{ if (!document.hidden) document.title = 'Alex'; });
 let openSub = null, openGoalChip = null, openPlan = null, openItem = null, openStart = null, openCycle = null, lbEdit = false, lbFocusInput = false, lbMore = false;
 let viewDay = null, planAhead = false, spanDays = 0, dayAddOpen = null, chipFocus = false, addPanel = false;  // 0 = one day at a time
-const vday = () => (viewDay && viewDay >= today()) ? viewDay : today();
+const earliest = () => addDays(today(), -BACK);
+const vday = () => (viewDay && viewDay >= earliest() && viewDay <= addDays(today(), AHEAD)) ? viewDay : today();
 const isToday = () => vday() === today();
 const dayList = k => S.actions.filter(a => a.date===k);
-const AHEAD = 4;                                      // days you can plan forward // sub picker state on Today
+const AHEAD = 4;                                      // days you can plan forward
+const BACK = 2;                                       // days you can look back // sub picker state on Today
 
 /* ---------- skyline ---------- */
 const WINDOWS = [];
@@ -925,12 +939,17 @@ function buildSkyline(){
   document.getElementById('skyline').innerHTML = out;
 }
 function lightSkyline(){
-  const n = weekActions().length;
+  const n = weekActions().length, total = WINDOWS.length;
+  const sky = document.getElementById('skyline');
+  const full = n >= total;                                  // more finished than there are windows
+  sky.classList.toggle('full', full);
   document.querySelectorAll('#skyline .w').forEach((el,i)=>{
-    el.classList.toggle('lit', i < n);
-    el.classList.toggle('new', i === justLit);
+    el.classList.toggle('lit', full || i < n);
+    el.classList.toggle('new', !full && i === justLit);
   });
-  document.getElementById('skyline').setAttribute('aria-label', `A city skyline. ${n} window${n===1?'':'s'} lit, one for each thing finished this week.`);
+  sky.setAttribute('aria-label', full
+    ? `A city skyline, every window lit — ${n} things finished this week.`
+    : `A city skyline. ${n} window${n===1?'':'s'} lit, one for each thing finished this week.`);
   justLit = -1;
 }
 
@@ -938,7 +957,7 @@ function lightSkyline(){
 function renderToday(){
   const el = document.getElementById('v-today');
   if (S.lowBatteryDate === today()) return renderLowBattery(el);
-  const k = spanDays ? today() : vday(), todayView = k===today();
+  const k = spanDays ? today() : vday(), todayView = k===today(), pastView = k < today();
   const list = dayList(k).filter(a=>!a.lb);
   const done = list.filter(a=>a.done).length;
   const skipped = list.filter(a=>a.state==='skip' && !a.done).length;
@@ -948,9 +967,13 @@ function renderToday(){
       ${[[0,'1 day'],[3,'3 days'],[5,'5 days']].map(([n,l])=>`<button data-act="span" data-n="${n}" aria-pressed="${spanDays===n}">${l}</button>`).join('')}
     </div>` : '';
   const strip = (!spanDays && (planAhead || !todayView)) ? `<div class="daystrip" role="group" aria-label="Choose a day">
-      ${Array.from({length:AHEAD+1},(_,i)=>addDays(today(),i)).map((dk,i)=>`<button data-act="day" data-d="${dk}" aria-pressed="${dk===k}">
-        <span>${i===0?'Today':DAYS[dayIdx(dk)]}</span><em>${parseKey(dk).getDate()}</em>
-        ${dayList(dk).filter(a=>!a.lb).length?`<i aria-hidden="true">${dayList(dk).filter(a=>!a.lb).length}</i>`:''}</button>`).join('')}
+      ${Array.from({length:BACK+AHEAD+1},(_,i)=>addDays(today(),i-BACK)).map(dk=>{
+        const isT = dk===today(), past = dk<today(), items = dayList(dk).filter(a=>!a.lb);
+        const badge = past ? items.filter(a=>a.done).length : items.length;
+        return `<button class="${past?'past':''}" data-act="day" data-d="${dk}" aria-pressed="${dk===k}">
+          <span>${isT?'Today':DAYS[dayIdx(dk)]}</span><em>${parseKey(dk).getDate()}</em>
+          ${badge?`<i aria-hidden="true">${badge}</i>`:''}</button>`;
+      }).join('')}
     </div>` : '';
 
   // carry prompt: unfinished items from the last day that had any
@@ -972,19 +995,23 @@ function renderToday(){
   const panelOpen = addPanel || addOpen || chipFocus || !list.length;   // empty day: open on arrival
   el.innerHTML = `
     <h2 class="title" id="h-today">${todayView ? 'Today' : esc(fmt(k,{weekday:'long'}))}</h2>
-    <p class="sub">${esc(dateLabel)}${todayView?'':' · planning ahead'}</p>
+    <p class="sub">${esc(dateLabel)}${todayView?'':(pastView?' · looking back':' · planning ahead')}</p>
     ${spanCtl}${strip}
     ${list.length ? `${todayListHTML(list)}
-      <p class="tally">${!todayView ? `<strong>${list.length}</strong> planned for ${esc(DAYS[dayIdx(k)])}`
-        : done===counted ? '<strong>All done.</strong> You showed up.' : `<strong>${done} / ${counted}</strong> complete`}${todayView&&skipped?` · ${skipped} set aside`:''}</p>`
-      : `<p class="tally" style="margin-top:18px">${todayView ? 'Nothing on today yet. Pick a focus below, or add something.' : `Nothing planned for ${esc(fmt(k,{weekday:'long'}))} yet. Add what you want waiting for you.`}</p>`}
+      <p class="tally">${pastView ? `<strong>${done} of ${list.length}</strong> done that day`
+        : !todayView ? `<strong>${list.length}</strong> planned for ${esc(DAYS[dayIdx(k)])}`
+        : done===counted ? '<strong>All done.</strong> You showed up.' : `<strong>${done} / ${counted}</strong> complete`}${todayView&&skipped?` · ${skipped} set aside`:''}</p>
+      ${pastView && list.some(a=>!a.done) ? `<button class="linkbtn" data-act="bring-rest" data-d="${k}" style="margin-top:8px">Bring what’s unfinished into today</button>` : ''}`
+      : `<p class="tally" style="margin-top:18px">${pastView ? `Nothing was on ${esc(fmt(k,{weekday:'long'}))}.`
+        : todayView ? 'Nothing on today yet. Pick a focus below, or add something.'
+        : `Nothing planned for ${esc(fmt(k,{weekday:'long'}))} yet. Add what you want waiting for you.`}</p>`}
     ${spanDays ? `<div class="days">${Array.from({length:spanDays-1},(_,i)=>addDays(today(),i+1)).map(dayCardHTML).join('')}</div>` : ''}
     ${todayView ? `<button class="linkbtn" data-act="ahead" style="margin-top:${spanDays?18:10}px">${(planAhead||spanDays)?'Just today':'Plan the next few days ›'}</button>` : ''}
     ${carry}
-    <button class="addcard ${panelOpen?'on':''}" data-act="panel" aria-expanded="${panelOpen}">
+    ${pastView ? '' : `<button class="addcard ${panelOpen?'on':''}" data-act="panel" aria-expanded="${panelOpen}">
       ${ICON.plus.replace('<svg','<svg width="20" height="20"')}<span>Add something</span><span class="chev" aria-hidden="true">${panelOpen?'⌃':'›'}</span>
-    </button>
-    ${panelOpen ? `<div class="addpanel">
+    </button>`}
+    ${panelOpen && !pastView ? `<div class="addpanel">
       <h3 class="q">${chipFocus && goalOf(openGoalChip) ? `Which part of ${esc(goalOf(openGoalChip).name)}?` : 'What do you want to focus on?'}<span class="qsub">${chipFocus && goalOf(openGoalChip) ? 'Pick one to add, or tap ‹ All areas to go back.' : 'Choose one area. What’s inside opens underneath it.'}</span></h3>
       ${focusGoals.length ? focusChipsHTML(focusGoals)
         : `<p class="sub">No active goals. Add one in Goals, or just type something below.</p>`}
@@ -1003,7 +1030,8 @@ function renderToday(){
       </div>
     </div>` : ''}
     ${todayView ? `<button class="battery" data-act="lb-on">${ICON.battery}<span>Low on energy today? Switch to low battery mode.</span></button>
-    <p class="motto">Progress &gt; Perfection.</p>` : `<p class="motto">Plans are drafts.</p>`}`;
+    <p class="motto">Progress &gt; Perfection.</p>`
+      : `<p class="motto">${pastView ? 'Missing a day doesn’t undo the others.' : 'Plans are drafts.'}</p>`}`;
   if (addOpen) setTimeout(()=>{ const i=document.getElementById('add-t'); i && i.focus(); },0);
 }
 function todayListHTML(list){
@@ -1035,6 +1063,22 @@ function itemHTML(a, soloSub){
     ? `<button class="subtag" data-act="sub-open" data-sub="${soloSub.id}" aria-label="Add another to ${esc(soloSub.name)}">${esc(soloSub.name)}<span aria-hidden="true">+</span></button>`
     : '';
   const menu = openItem===a.id;
+  if (a.date < today()){                                   // a day that has already happened
+    const seg2 = [['todo','Not done'],['done','Done']].map(([k,l])=>
+      `<button role="radio" aria-checked="${(k==='done')===!!a.done}" tabindex="${(k==='done')===!!a.done?0:-1}" data-act="setstate" data-id="${a.id}" data-s="${k}" aria-label="${l}: ${esc(a.title)}">${l}</button>`).join('');
+    return `<li class="item past-row ${a.done?'st-done':''} ${menu?'menu':''}" style="--accent:${ac}">
+      <div class="irow">
+        <span class="cat" title="${esc(catName(a.cat))}">${iconFor(a.cat)}</span>
+        <span class="ttext"><span class="tline"><span class="t">${esc(a.title)}</span></span></span>
+        <span class="sseg" role="radiogroup" aria-label="Was ${esc(a.title)} done?">${seg2}</span>
+        <button class="dots" data-act="item-menu" data-id="${a.id}" aria-expanded="${menu}" aria-label="${menu?'Hide':'Show'} options for ${esc(a.title)}">${ICON.dots}</button>
+      </div>
+      ${menu?`<div class="panel"><div class="btnrow">
+        <button class="btn primary" data-act="bring-today" data-id="${a.id}">Bring into today</button>
+        <button class="btn ghost danger" data-act="remove" data-id="${a.id}">Delete</button>
+      </div></div>`:''}
+    </li>`;
+  }
   if (a.date !== today()) return `<li class="item planned-row ${menu?'menu':''}" style="--accent:${ac}">
     <div class="irow">
       <span class="bullet" aria-hidden="true"></span>
@@ -1053,12 +1097,12 @@ function itemHTML(a, soloSub){
     : live ? 'In progress'
     : '';
   const seg = [['todo','To do'],['doing','Doing'],['done','Done']].map(([k,l])=>
-    `<button data-act="setstate" data-id="${a.id}" data-s="${k}" aria-pressed="${state===k}" aria-label="${l}: ${esc(a.title)}">${l}</button>`).join('');
+    `<button role="radio" aria-checked="${state===k}" tabindex="${state===k?0:-1}" data-act="setstate" data-id="${a.id}" data-s="${k}" aria-label="${l}: ${esc(a.title)}">${l}</button>`).join('');
   return `<li class="item st-${state} ${a.state==='skip'&&!a.done?'set-aside':''} ${menu?'menu':''}" style="--accent:${ac}">
     <div class="irow">
       <span class="cat" title="${esc(catName(a.cat))}">${iconFor(a.cat)}</span>
       <span class="ttext"><span class="tline">${tag}<span class="t">${esc(a.title)}</span></span>${sub?`<span class="sub2">${sub}</span>`:''}</span>
-      <span class="sseg" role="group" aria-label="Status">${seg}</span>
+      <span class="sseg" role="radiogroup" aria-label="Status of ${esc(a.title)}">${seg}</span>
       <button class="dots" data-act="item-menu" data-id="${a.id}" aria-expanded="${menu}" aria-label="${menu?'Hide':'Show'} options for ${esc(a.title)}">${ICON.dots}</button>
     </div>
     ${openStart===a.id?startPickerHTML(a):''}
@@ -1109,12 +1153,33 @@ function blockBarHTML(a, left){
     ${ctrl}
   </div>`;
 }
+function peersOf(a){                                        // the items rendered alongside this one
+  const sameDay = S.actions.filter(x=>x.date===a.date && !x.lb);
+  const groupCount = sid => sameDay.filter(x=>x.sub===sid).length;
+  const bucket = x => (x.sub && groupCount(x.sub) > 1) ? x.sub : 'top';
+  const cls = x => x.done ? 1 : (x.state==='skip' ? 2 : 0);
+  return sameDay.filter(x=>bucket(x)===bucket(a) && cls(x)===cls(a));
+}
+function canMove(a, dir){
+  const peers = peersOf(a), i = peers.indexOf(a);
+  return i > -1 && (dir < 0 ? i > 0 : i < peers.length-1);
+}
+function moveItem(id, dir){
+  const a = S.actions.find(x=>x.id===id); if (!a) return;
+  const peers = peersOf(a), i = peers.indexOf(a), j = i + dir;
+  if (i < 0 || j < 0 || j >= peers.length) return;
+  const ia = S.actions.indexOf(a), ib = S.actions.indexOf(peers[j]);
+  S.actions[ia] = peers[j]; S.actions[ib] = a;               // swap where they sit in the list
+  save(); render();
+}
 function itemPanelHTML(a){
   const live = a.state==='progress' && !a.done;
   const timed = isTimed(a);
   const nextDay = (a.done ? 'Copy to ' : 'Move to ') + (a.date===today() ? 'tomorrow' : 'the next day');
   return `<div class="panel">
     <div class="btnrow">
+      ${canMove(a,-1)?`<button class="btn ghost" data-act="move" data-id="${a.id}" data-dir="-1" aria-label="Move ${esc(a.title)} up">Move up</button>`:''}
+      ${canMove(a,1)?`<button class="btn ghost" data-act="move" data-id="${a.id}" data-dir="1" aria-label="Move ${esc(a.title)} down">Move down</button>`:''}
       <button class="btn ghost" data-act="tomorrow" data-id="${a.id}">${nextDay}</button>
       ${a.done ? '' : a.state==='skip'
         ? `<button class="btn ghost" data-act="unskip" data-id="${a.id}">Bring back</button>`
@@ -1284,8 +1349,8 @@ function renderGoals(){
           <span class="gw">${g.target ? `${n} / ${g.target} this week` : ''}</span>
         </button>
         <div class="gbody" id="gb-${g.id}">
-          <div class="gtabs" role="group" aria-label="Which part of ${esc(g.name)}">
-            ${[['goal','Goal'],['settings','Settings']].map(([k,l])=>`<button data-act="goal-tab" data-cat="${g.id}" data-t="${k}" aria-pressed="${goalTab===k}">${l}</button>`).join('')}
+          <div class="gtabs" role="tablist" aria-label="Which part of ${esc(g.name)}">
+            ${[['goal','Goal'],['settings','Settings']].map(([k,l])=>`<button role="tab" data-act="goal-tab" data-cat="${g.id}" data-t="${k}" aria-selected="${goalTab===k}" aria-pressed="${goalTab===k}">${l}</button>`).join('')}
           </div>
           ${goalTab!=='goal' ? '' : `
           ${field(g.id,'name','Area name','input','What to call this part of your life')}
@@ -1347,6 +1412,13 @@ function renderGoals(){
                 : `<button class="linkbtn" data-act="plan-open" data-sub="${sb.id}" style="justify-self:start">${hasPlan(sb)?`Weekly plan · ${sb.plan.filter(x=>x&&x.trim()).length} day${sb.plan.filter(x=>x&&x.trim()).length===1?'':'s'}`:'Add a weekly plan'}</button>`}
             </div>`).join('')}
             <button class="linkbtn" data-act="sub-new" data-cat="${g.id}">+ Add a sub-area</button>
+          </div>
+          <div class="l" style="display:grid;gap:8px;font-size:14px;color:var(--muted);font-weight:600">Order on Today
+            <div class="btnrow">
+              <button class="btn ghost" data-act="goal-move" data-cat="${g.id}" data-dir="-1" ${S.goals[0]===g?'disabled':''} aria-label="Move ${esc(g.name)} up">Move up</button>
+              <button class="btn ghost" data-act="goal-move" data-cat="${g.id}" data-dir="1" ${S.goals[S.goals.length-1]===g?'disabled':''} aria-label="Move ${esc(g.name)} down">Move down</button>
+            </div>
+            <span class="hint">Areas appear in this order everywhere — Today, Goals, Roadmap and Progress.</span>
           </div>
           <button class="linkbtn danger" data-act="goal-delete" data-cat="${g.id}">Delete this goal</button>`}
         </div>
@@ -1478,7 +1550,9 @@ function render(){
   const keepFocus = captureFocus();
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on', v.id==='v-'+tab));
   document.querySelectorAll('nav.tabs button').forEach(b=>{
-    if (b.dataset.tab===tab) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
+    const on = b.dataset.tab===tab;
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+    if (on) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
   });
   ({today:renderToday,goals:renderGoals,roadmap:renderRoadmap,progress:renderProgress})[tab]();
   lightSkyline();
@@ -1486,8 +1560,16 @@ function render(){
 }
 
 /* ---------- actions ---------- */
-let toastT;
-function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2000); }
+let toastT, undoState = null, undoT;
+function toast(msg, undoable){
+  const t = document.getElementById('toast');
+  t.innerHTML = esc(msg) + (undoable ? ` <button class="undobtn" data-act="undo">Undo</button>` : '');
+  t.classList.toggle('act', !!undoable);
+  t.classList.add('on');
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>t.classList.remove('on'), undoable ? 7000 : 2000);
+}
+function markUndo(){ undoState = JSON.stringify(S); clearTimeout(undoT); undoT = setTimeout(()=>{ undoState = null; }, 7500); }
 function addAction(cat,title,extra={},day){
   title = title.trim(); if (!title) return false;
   const k = day || vday();
@@ -1507,7 +1589,18 @@ document.addEventListener('click', e=>{
   const b = e.target.closest('[data-act]'); if (!b) return;
   const act = b.dataset.act, id = b.dataset.id, cat = b.dataset.cat;
   switch(act){
-    case 'remove': S.actions = S.actions.filter(x=>x.id!==id); openItem=null; save(); render(); break;
+    case 'remove': {
+      const a = S.actions.find(x=>x.id===id);
+      markUndo();
+      S.actions = S.actions.filter(x=>x.id!==id); openItem=null; save(); render();
+      toast(`Deleted ${a?a.title:'it'}`, true); break;
+    }
+    case 'undo': {
+      if (!undoState){ toast('Nothing to undo'); break; }
+      S = JSON.parse(undoState); undoState = null;
+      openItem = null; openGoal = null; openSub = null;
+      save(); render(); toast('Put back'); break;
+    }
     case 'focus': {
       const g = goalOf(cat); if (!g) break;
       const closing = openGoalChip===g.id;
@@ -1540,11 +1633,18 @@ document.addEventListener('click', e=>{
       break;
     }
     case 'item-menu': openItem = openItem===id ? null : id; render(); break;
+    case 'move': moveItem(id, +b.dataset.dir); break;
+    case 'goal-move': {
+      const i = S.goals.findIndex(g=>g.id===cat), j = i + (+b.dataset.dir);
+      if (i < 0 || j < 0 || j >= S.goals.length) break;
+      const t = S.goals[i]; S.goals[i] = S.goals[j]; S.goals[j] = t;
+      save(); render(); break;
+    }
     case 'setstate': {
       const a = S.actions.find(x=>x.id===id); if (!a) break;
       const st = b.dataset.s;
       if (st==='done'){
-        if (!a.done){ a.done = true; a.state = 'done'; a.endsAt = null; justLit = weekActions().length-1; }
+        if (!a.done){ a.done = true; a.state = 'done'; a.endsAt = null; if (a.date===today()) justLit = weekActions().length-1; }
       } else if (st==='doing'){
         a.done = false;
         if (a.state==='progress' && a.paused){ a.endsAt = Date.now() + a.paused; a.paused = null; save(); render(); break; }
@@ -1633,6 +1733,20 @@ document.addEventListener('click', e=>{
       if (addAction(x.goal, x.t, x.sub?{sub:x.sub, minutes:x.minutes}:{}, k)) render();
       break;
     }
+    case 'bring-today': {
+      const a = S.actions.find(x=>x.id===id); if (!a) break;
+      if (addAction(a.cat, a.title, {sub:a.sub||null, minutes:a.minutes||null}, today())) toast(`${a.title} is on today`);
+      render(); break;
+    }
+    case 'bring-rest': {
+      const k = b.dataset.d;
+      const open = dayList(k).filter(x=>!x.done && !x.lb);
+      let n = 0;
+      open.forEach(x=>{ if (addAction(x.cat, x.title, {sub:x.sub||null, minutes:x.minutes||null}, today())) n++; });
+      viewDay = null; planAhead = true; render();
+      toast(n ? `${n} item${n===1?'':'s'} moved onto today` : 'Those are already on today');
+      break;
+    }
     case 'day': viewDay = b.dataset.d; planAhead = true; openSub = null; openGoalChip = null; chipFocus = false; render(); break;
     case 'panel': {
       addPanel = !addPanel;
@@ -1654,7 +1768,9 @@ document.addEventListener('click', e=>{
       const i = +b.dataset.i, o = S.smallWins.list[i];
       if (!o || o.locked) break;
       if (S.smallWins.list.length <= LB_MIN){ toast(`Keeping ${LB_MIN} options here`); break; }
-      S.smallWins.list.splice(i,1); S.smallWins.off.unshift(o); save(); render(); break;
+      markUndo();
+      S.smallWins.list.splice(i,1); S.smallWins.off.unshift(o); save(); render();
+      toast(`Took ${o.t} off the list`, true); break;
     }
     case 'lb-add-sug': {
       const o = lbSuggestions()[+b.dataset.i]; if (!o) break;
@@ -1691,13 +1807,13 @@ document.addEventListener('click', e=>{
     }
     case 'sub-delete': {
       const f = subOf(b.dataset.sub); if (!f) break;
-      const n = todays().filter(a=>a.sub===f.sub.id).length;
-      if (confirm(`Delete “${f.sub.name || 'this sub-area'}”?${n?` ${n} item${n===1?'':'s'} on Today will move out of the group but stay on your list.`:''}`)){
-        f.goal.subs = f.goal.subs.filter(x=>x.id!==f.sub.id);
-        S.actions.forEach(a=>{ if (a.sub===f.sub.id) a.sub = null; });
-        if (openSub===f.sub.id) openSub = null;
-        save(); render();
-      }
+      const name = f.sub.name || 'that sub-area';
+      markUndo();
+      f.goal.subs = f.goal.subs.filter(x=>x.id!==f.sub.id);
+      S.actions.forEach(a=>{ if (a.sub===f.sub.id) a.sub = null; });
+      if (openSub===f.sub.id) openSub = null;
+      save(); render();
+      toast(`Deleted ${name}`, true);
       break;
     }
     case 'sub-timed': { const f = subOf(b.dataset.sub); if (f){ f.sub.timed = !f.sub.timed; save(); render(); } break; }
@@ -1709,11 +1825,11 @@ document.addEventListener('click', e=>{
     case 'new-icon': newIcon = b.dataset.k; render(); break;
     case 'goal-delete': {
       const g = goalOf(cat); if (!g) break;
-      const onToday = todays().some(a=>a.cat===g.id);
       if (confirm(`Delete “${g.name}”? Its goal and weekly target go away. Anything you’ve already checked off stays in your history.`)){
+        markUndo();
         S.goals = S.goals.filter(x=>x.id!==g.id);
-        if (onToday) toast('Today’s items from that area are still there');
         openGoal = null; save(); render();
+        toast(`Deleted ${g.name}`, true);
       }
       break;
     }
@@ -1795,6 +1911,16 @@ setInterval(()=>{
   }
   if (elc) elc.textContent = `time’s up · ${agoLabel(-left)}`;   // then keep counting up, quietly
 }, 1000);
+
+document.addEventListener('keydown', e=>{
+  const rg = e.target.closest && e.target.closest('[role="radiogroup"]');
+  if (!rg || !['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) return;
+  const items = [...rg.querySelectorAll('[role="radio"]')];
+  const i = items.indexOf(e.target); if (i < 0) return;
+  e.preventDefault();
+  const next = items[(i + (e.key==='ArrowRight'||e.key==='ArrowDown' ? 1 : items.length-1)) % items.length];
+  next.focus(); next.click();
+});
 
 document.addEventListener('submit', e=>{
   if (e.target.dataset.form==='goal-add'){
