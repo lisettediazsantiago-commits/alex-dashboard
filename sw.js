@@ -1,5 +1,5 @@
 // Bump CACHE whenever you upload a new index.html, or phones keep serving the old one.
-const CACHE = 'alex-dashboard-v2';
+const CACHE = 'alex-dashboard-v3';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
