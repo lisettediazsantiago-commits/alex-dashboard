@@ -17,7 +17,7 @@
 <style>
 :root{
   --night:#0D1422; --night-2:#111A2B; --panel:#152036; --panel-2:#1A2640;
-  --line:#26334D; --text:#E7ECF6; --muted:#8C98B0; --faint:#5C6881;
+  --line:#26334D; --text:#E7ECF6; --muted:#8C98B0; --faint:#7B88A4;
   --signal:#86B7FF; --signal-dim:rgba(134,183,255,.14);
   --window:#FFD98A; --building:#18233A; --building-2:#1D2A45;
   --display:"Big Shoulders Display","Arial Narrow","Roboto Condensed",sans-serif;
@@ -57,11 +57,7 @@ h3.q .qsub{font-size:13px;font-weight:500;color:var(--muted)}
 .list{list-style:none;margin:18px 0 0;padding:0}
 .item{display:flex;align-items:center;gap:14px;padding:16px 4px;border-bottom:1px solid var(--line)}
 .item:first-child{border-top:1px solid var(--line)}
-.check{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--faint);display:grid;place-items:center;transition:background .2s,border-color .2s}
-.check svg{width:16px;height:16px;opacity:0;transition:opacity .2s}
 .item{--accent:var(--signal)}
-.item.done .check{background:var(--accent);border-color:var(--accent)}
-.item.done .check svg{opacity:1}
 .item .t{flex:1;font-size:18px;font-weight:500;text-align:left}
 .item.done .t{color:var(--muted)}
 .item .cat{flex:none;color:var(--accent);opacity:.9;width:20px;height:20px}
@@ -177,9 +173,6 @@ textarea.field{min-height:72px;resize:vertical}
 .irow{display:flex;align-items:center;gap:12px;width:100%}
 .item{display:block}
 .item.set-aside .t{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line)}
-.mini{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-size:13px;font-weight:600;flex:none}
-.mini svg{width:13px;height:13px;fill:currentColor;stroke:none}
-.mini:hover{border-color:var(--signal);color:var(--signal)}
 .clock{font-family:var(--display);font-weight:800;font-size:22px;color:var(--accent);letter-spacing:.04em;flex:none;font-variant-numeric:tabular-nums}
 .panel{padding:4px 0 14px 44px}
 .picker-panel p{color:var(--text);font-size:15px;font-weight:600}
@@ -213,7 +206,6 @@ textarea.field{min-height:72px;resize:vertical}
 .branch .subadd{margin:4px 0 10px}
 .branch .chips.inner{margin-bottom:0}
 .branch .subadd{margin-top:10px}
-.subs{margin-top:12px}
 .chip.small{padding:8px 12px;font-size:14px}
 .chip.small.on{border-color:var(--accent);color:var(--accent)}
 .chip.small.planned{border-color:var(--signal);background:var(--signal-dim);color:var(--signal)}
@@ -236,6 +228,8 @@ textarea.field{min-height:72px;resize:vertical}
 .dhdr{display:flex;align-items:baseline;gap:10px}
 .dhdr h3{margin:0;font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:.03em}
 .dhdr span{flex:1;color:var(--faint);font-size:13px}
+.mini{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-size:13px;font-weight:600;flex:none}
+.mini:hover{border-color:var(--signal);color:var(--signal)}
 .dhdr .mini{align-self:center}
 .daycard .list{margin-top:4px}
 .daycard .item{border-color:var(--line)}
@@ -498,10 +492,10 @@ nav.tabs svg{width:clamp(20px,6vw,22px);height:clamp(20px,6vw,22px)}
   </header>
 
   <main>
-    <section class="view on" id="v-today" aria-labelledby="h-today"></section>
-    <section class="view" id="v-goals" aria-labelledby="h-goals"></section>
-    <section class="view" id="v-roadmap" aria-labelledby="h-roadmap"></section>
-    <section class="view" id="v-progress" aria-labelledby="h-progress"></section>
+    <section class="view on" id="v-today" aria-label="Today"></section>
+    <section class="view" id="v-goals" aria-label="Goals"></section>
+    <section class="view" id="v-roadmap" aria-label="Roadmap"></section>
+    <section class="view" id="v-progress" aria-label="Progress"></section>
   </main>
 </div>
 
@@ -539,7 +533,6 @@ const ICON = {
   play:    P('M8 5.5l10 6.5-10 6.5z'),
   check2:  P('M5 12.5l4.5 4.5L19 7.5'),
   dots:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg>',
-  moon:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
   battery: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7.5" width="15" height="9" rx="2"/><path d="M21 11v2"/><rect x="5.5" y="10" width="3" height="4" rx=".5" fill="currentColor" stroke="none"/></svg>'
 };
 const COLORS = ['#86B7FF','#7FD1A8','#F2B07B','#D9A6EE','#F49CAE','#7FD8E8'];
@@ -791,9 +784,22 @@ function migrate16(s){
   });
   s.v = 16;
 }
+const CURRENT_V = 16;
+const BAK = KEY + ':backup';
+function usable(s){ return !!(s && Array.isArray(s.goals) && Array.isArray(s.actions)); }
 function load(){
+  let raw = null, s = null;
+  try { raw = localStorage.getItem(KEY); s = raw ? JSON.parse(raw) : null; }
+  catch(e){ s = null; }                                   // corrupt JSON: fall through to the backup
+  if (!usable(s)){
+    try { const bak = JSON.parse(localStorage.getItem(BAK)); if (usable(bak)) s = bak; } catch(e){}
+  }
+  if (!usable(s)) return seed();
+  // keep the last good copy before any migration touches it
+  try { if (raw) localStorage.setItem(BAK, raw); } catch(e){}
+  // saved by a newer build than this file: leave it exactly as it is rather than reseeding
+  if (typeof s.v === 'number' && s.v > CURRENT_V) return s;
   try {
-    const s = JSON.parse(localStorage.getItem(KEY));
     if (s && s.v===16) return s;
     if (s && s.v===15){ migrate16(s); return s; }
     if (s && s.v===14){ migrate15(s); return s; }
@@ -815,8 +821,8 @@ function load(){
       s.goals.forEach(g => { g.plan = ['','','','','','','']; });
       s.v = 4; migrate5(s); return s;
     }
-  } catch(e){}
-  return seed();
+  } catch(e){ /* a migration threw: better to keep the data than to replace it */ }
+  return s;                                                // unknown shape, but real data — never reseed over it
 }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
 let S = load(); save();
@@ -935,7 +941,7 @@ function renderToday(){
     ${spanDays ? `<div class="days">${Array.from({length:spanDays-1},(_,i)=>addDays(today(),i+1)).map(dayCardHTML).join('')}</div>` : ''}
     ${todayView ? `<button class="linkbtn" data-act="ahead" style="margin-top:${spanDays?18:10}px">${(planAhead||spanDays)?'Just today':'Plan the next few days ›'}</button>` : ''}
     ${carry}
-    <h3 class="q">${chipFocus && goalOf(openGoalChip) ? `Which part of ${esc(goalOf(openGoalChip).name)}?` : 'What do you want to focus on?'}<span class="qsub">Choose one area. What’s inside opens underneath it.</span></h3>
+    <h3 class="q">${chipFocus && goalOf(openGoalChip) ? `Which part of ${esc(goalOf(openGoalChip).name)}?` : 'What do you want to focus on?'}<span class="qsub">${chipFocus && goalOf(openGoalChip) ? 'Pick one to add, or tap ‹ All areas to go back.' : 'Choose one area. What’s inside opens underneath it.'}</span></h3>
     ${focusGoals.length ? focusChipsHTML(focusGoals)
       : `<p class="sub">No active goals. Add one in Goals, or just add something below.</p>`}
     <div class="add">
@@ -1052,7 +1058,7 @@ function blockBarHTML(a, left){
 function itemPanelHTML(a){
   const live = a.state==='progress' && !a.done;
   const timed = isTimed(a);
-  const nextDay = a.date===today() ? 'Move to tomorrow' : 'Move to next day';
+  const nextDay = (a.done ? 'Copy to ' : 'Move to ') + (a.date===today() ? 'tomorrow' : 'the next day');
   return `<div class="panel">
     <div class="btnrow">
       <button class="btn ghost" data-act="tomorrow" data-id="${a.id}">${nextDay}</button>
@@ -1376,16 +1382,48 @@ function renderProgress(){
     ${rested ? `<div class="prow">${ICON.rest}<div class="pl">Rested on purpose</div><span class="pv">${rested}</span></div>` : ''}</div>
     ${last ? `<p class="note">Last week: ${last} intentional action${last===1?'':'s'}.</p>` : ''}
     <p class="note">Every finished action lights a window in the skyline. The count starts fresh each Monday.</p>
+    <div class="btnrow" style="margin-top:30px">
+      <button class="btn ghost" data-act="export">Export a backup</button>
+      <button class="btn ghost" data-act="import">Import a backup</button>
+      <input type="file" id="import-file" accept="application/json,.json" class="sr" aria-label="Choose a backup file">
+    </div>
+    <p class="note" style="margin-top:10px">A backup is one small file holding your areas, plans and history. Worth keeping before you clear anything or move to another phone — this app stores everything in this browser only.</p>
     <button class="reset" data-act="reset">Clear all data and start over</button>`;
 }
 
+function focusKey(el){
+  const d = el.dataset || {};
+  return ['act','id','cat','sub','s','d','m','i','k','t','n','tab'].map(x=>d[x]||'').join('|');
+}
+function captureFocus(){
+  const ae = document.activeElement;
+  if (!ae || ae === document.body) return null;
+  if (ae.id && (ae.tagName==='INPUT' || ae.tagName==='TEXTAREA' || ae.tagName==='SELECT'))
+    return {field:ae.id, pos:(ae.selectionStart==null?null:ae.selectionStart)};
+  if (ae.dataset && (ae.dataset.act || ae.dataset.tab)) return {key:focusKey(ae)};
+  return null;
+}
+function restoreFocus(f){
+  if (!f) return;
+  try {
+    if (f.field){
+      const el = document.getElementById(f.field);
+      if (el){ el.focus({preventScroll:true}); if (f.pos!=null && el.setSelectionRange) el.setSelectionRange(f.pos,f.pos); }
+      return;
+    }
+    const el = [...document.querySelectorAll('[data-act],[data-tab]')].find(x=>focusKey(x)===f.key);
+    if (el) el.focus({preventScroll:true});
+  } catch(e){}
+}
 function render(){
+  const keepFocus = captureFocus();
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on', v.id==='v-'+tab));
   document.querySelectorAll('nav.tabs button').forEach(b=>{
     if (b.dataset.tab===tab) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
   });
   ({today:renderToday,goals:renderGoals,roadmap:renderRoadmap,progress:renderProgress})[tab]();
   lightSkyline();
+  restoreFocus(keepFocus);
 }
 
 /* ---------- actions ---------- */
@@ -1394,7 +1432,10 @@ function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg
 function addAction(cat,title,extra={},day){
   title = title.trim(); if (!title) return false;
   const k = day || vday();
-  if (dayList(k).some(a=>a.title.toLowerCase()===title.toLowerCase() && !a.lb)){ toast(isToday()?'Already on today':'Already on that day'); return false; }
+  const sameSpot = a => (a.sub || null) === (extra.sub || null) && a.cat === cat;
+  if (dayList(k).some(a=>a.title.toLowerCase()===title.toLowerCase() && !a.lb && sameSpot(a))){
+    toast(isToday()?'Already on today':'Already on that day'); return false;
+  }
   S.actions.push({id:uid(),cat,title,date:k,done:false,state:'todo',...extra}); save(); return true;
 }
 function prune(){ // keep 120 days of history; V1 has no need for more
@@ -1407,13 +1448,6 @@ document.addEventListener('click', e=>{
   const b = e.target.closest('[data-act]'); if (!b) return;
   const act = b.dataset.act, id = b.dataset.id, cat = b.dataset.cat;
   switch(act){
-    case 'toggle': {
-      const a = S.actions.find(x=>x.id===id); if (!a) break;
-      a.done = !a.done;
-      a.state = a.done ? 'done' : 'todo';
-      if (a.done){ a.endsAt = null; justLit = weekActions().length - 1; }
-      save(); render(); break;
-    }
     case 'remove': S.actions = S.actions.filter(x=>x.id!==id); openItem=null; save(); render(); break;
     case 'focus': {
       const g = goalOf(cat); if (!g) break;
@@ -1486,11 +1520,16 @@ document.addEventListener('click', e=>{
       save(); render(); break;
     }
     case 'stop': { const a = S.actions.find(x=>x.id===id); if (a){ a.state='todo'; a.endsAt=null; a.paused=null; a.bi=null; a.blocks=false; save(); render(); } break; }
-    case 'uncomplete': { const a = S.actions.find(x=>x.id===id); if (a){ a.done=false; a.state='todo'; save(); render(); } break; }
     case 'tomorrow': {
       const a = S.actions.find(x=>x.id===id); if (!a) break;
-      a.date = addDays(a.date,1); a.state='todo'; a.endsAt=null; a.done=false; openItem=null; save(); render();
-      toast(`Moved to ${fmt(a.date,{weekday:'long'})}`); break;
+      const to = addDays(a.date,1);
+      if (a.done){                                        // keep today's evidence, send a fresh copy forward
+        S.actions.push({id:uid(),cat:a.cat,sub:a.sub||null,minutes:a.minutes||null,title:a.title,date:to,done:false,state:'todo'});
+        openItem=null; save(); render();
+        toast(`Copied to ${fmt(to,{weekday:'long'})} — today still counts`); break;
+      }
+      a.date = to; a.state='todo'; a.endsAt=null; a.paused=null; a.bi=null; a.blocks=false; openItem=null; save(); render();
+      toast(`Moved to ${fmt(to,{weekday:'long'})}`); break;
     }
     case 'more': { const a = S.actions.find(x=>x.id===id); if (a){ a.endsAt = Math.max(Date.now(), a.endsAt||0) + (a.minutes||10)*60000; save(); render(); } break; }
     case 'finish': { const a = S.actions.find(x=>x.id===id); if (a){ a.done = true; a.state = 'done'; a.endsAt=null; a.paused=null; openItem=null; justLit = weekActions().length-1; save(); render(); } break; }
@@ -1504,7 +1543,11 @@ document.addEventListener('click', e=>{
     }
     case 'skip': { const a = S.actions.find(x=>x.id===id); if (a){ a.state = 'skip'; a.endsAt = null; openItem=null; save(); render(); } break; }
     case 'unskip': { const a = S.actions.find(x=>x.id===id); if (a){ a.state = 'todo'; openItem=null; save(); render(); } break; }
-    case 'carry': { const a = S.actions.find(x=>x.id===id); if (a && addAction(a.cat,a.title)) render(); break; }
+    case 'carry': {
+      const a = S.actions.find(x=>x.id===id);
+      if (a && addAction(a.cat, a.title, {sub:a.sub||null, minutes:a.minutes||null})) render();
+      break;
+    }
     case 'carry-done': S.carryHandled = today(); save(); render(); break;
     case 'all-areas': chipFocus = false; render(); break;
     case 'ahead': {
@@ -1604,11 +1647,39 @@ document.addEventListener('click', e=>{
     case 'new-cycle':
       if (confirm('Start a new 90-day cycle from today? Your goals and history stay as they are.')){ S.roadmapStart = today(); save(); render(); }
       break;
+    case 'export': exportBackup(); break;
+    case 'import': { const f = document.getElementById('import-file'); if (f) f.click(); break; }
     case 'reset':
-      if (confirm('Clear everything and start over with the starter setup? This can’t be undone.')){ localStorage.removeItem(KEY); S = seed(); save(); tab='today'; render(); }
+      if (confirm('Clear everything and start over with the starter setup? Export a backup first if you might want this back — this can’t be undone.')){
+        try { localStorage.setItem(BAK, JSON.stringify(S)); } catch(e){}
+        localStorage.removeItem(KEY); S = seed(); save(); tab='today'; render();
+      }
       break;
   }
 });
+async function exportBackup(){
+  const json = JSON.stringify(S,null,2), filename = `alex-dashboard-${today()}.json`;
+  // inside the Claude artifact viewer a plain download link does nothing, so ask the host first
+  let host = null;
+  try {
+    if (window.claude && typeof window.claude.use === 'function'){
+      host = await Promise.race([claude.use('downloads'), new Promise(r=>setTimeout(()=>r(null), 1500))]);
+    }
+  } catch(e){ host = null; }
+  if (host){
+    try { await host.save({filename, data:json}); toast('Backup saved'); }
+    catch(err){ toast(err && err.code==='declined' ? 'Backup not saved' : 'Couldn’t save the backup here'); }
+    return;
+  }
+  try {
+    const url = URL.createObjectURL(new Blob([json], {type:'application/json'}));
+    const a2 = document.createElement('a');
+    a2.href = url; a2.download = filename;
+    document.body.appendChild(a2); a2.click(); a2.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+    toast('Backup saved to your downloads');
+  } catch(e){ toast('Couldn’t save the backup here'); }
+}
 function planOwner(el){
   if (el.dataset.kind==='sub'){ const f = subOf(el.dataset.sub); return f && f.sub; }
   return goalOf(el.dataset.cat);
@@ -1718,6 +1789,20 @@ document.addEventListener('input', e=>{
 });
 document.addEventListener('change', e=>{
   if (e.target.dataset.act==='start' && e.target.value){ S.roadmapStart = e.target.value; save(); render(); }
+  if (e.target.id==='import-file' && e.target.files && e.target.files[0]){
+    const file = e.target.files[0], reader = new FileReader();
+    reader.onload = () => {
+      let data = null;
+      try { data = JSON.parse(reader.result); } catch(err){ toast('That file isn’t a backup'); return; }
+      if (!usable(data)){ toast('That file isn’t a backup'); return; }
+      const n = (data.actions||[]).length, g = (data.goals||[]).length;
+      if (!confirm(`Replace what’s here with this backup? It holds ${g} area${g===1?'':'s'} and ${n} item${n===1?'':'s'}. Your current data is kept as a recovery copy.`)) return;
+      try { localStorage.setItem(BAK, JSON.stringify(S)); } catch(err){}
+      S = data; save(); tab='today'; render(); toast('Backup restored');
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }
 });
 
 // A new day starts clean if the tab stays open overnight
