@@ -78,17 +78,17 @@ h3.q .qsub{font-size:13px;font-weight:500;color:var(--muted)}
 .sseg button{padding:8px 9px;font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--muted);white-space:nowrap}
 .sseg button:hover{color:var(--text)}
 .sseg button[aria-pressed="true"]{background:var(--accent);color:#0D1422}
-.item.st-doing{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 12%,transparent),transparent);border-radius:14px;margin:0 -8px;padding:0 8px}
+.item.st-doing{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 12%,transparent),transparent);border-radius:14px;margin-inline:-8px;padding-inline:8px}
 .x{flex:none;width:32px;height:32px;border-radius:8px;color:var(--faint);display:grid;place-items:center}
 .x:hover{color:var(--text);background:var(--panel)}
 .dots{flex:none;width:34px;height:34px;border-radius:9px;color:var(--faint);display:grid;place-items:center}
 .dots:hover,.item.menu .dots{color:var(--text);background:var(--panel)}
 .dots svg{transition:transform .2s ease}
 .item.menu .dots svg{transform:rotate(180deg)}
-.tag{flex:none;font-size:12px;font-weight:700;letter-spacing:.03em;color:var(--faint);text-transform:uppercase}
-.tag.on-tag{color:var(--accent)}
-.tag.done-tag{color:var(--faint)}
-.item.menu{background:var(--night-2);border-radius:14px;margin:0 -10px;padding:0 10px}
+.item .tag{flex:none;font-size:12px;font-weight:700;letter-spacing:.03em;color:var(--faint);text-transform:uppercase}
+.item .tag.on-tag{color:var(--accent)}
+.item .tag.done-tag{color:var(--faint)}
+.item.menu{background:var(--night-2);border-radius:14px;margin-inline:-8px;padding-inline:8px}
 .btn.ghost.danger{color:var(--muted)}
 .btn.ghost.danger:hover{color:#FF9B9B;border-color:#FF9B9B}
 .tally{margin:14px 0 0;color:var(--muted);font-size:15px}
@@ -311,9 +311,9 @@ textarea.field{min-height:72px;resize:vertical}
 .prow .pv{font-weight:700;font-size:17px}
 .prow .pv small{color:var(--muted);font-weight:500;font-size:15px}
 .psub{border-left:3px solid var(--accent);display:flex;justify-content:space-between;padding:7px 0 7px 34px;color:var(--muted);font-size:14px;border-bottom:1px solid var(--line)}
-.dots{display:flex;gap:5px;margin-top:6px}
-.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
-.dots i.f{background:var(--accent)}
+.prow .dots{display:flex;gap:5px;margin-top:6px}
+.prow .dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.prow .dots i.f{background:var(--accent)}
 .note{color:var(--faint);font-size:14px;margin-top:20px}
 .reset{margin-top:44px;font-size:13px;color:var(--faint);text-decoration:underline}
 
@@ -332,6 +332,159 @@ nav.tabs button[aria-current="page"]{color:var(--signal)}
   .mark{font-size:72px}
   .wrap{padding-bottom:140px}
 }
+
+/* ==========================================================
+   Responsive pass — fluid type, fluid spacing, no squeezing.
+   Everything below intentionally overrides the rules above.
+   ========================================================== */
+:root{
+  --gutter:clamp(14px,4.4vw,20px);
+  --fs-xs:clamp(11px,3.1vw,12px);
+  --fs-sm:clamp(12.5px,3.4vw,14px);
+  --fs-base:clamp(15px,4vw,16px);
+  --fs-lg:clamp(15.5px,4.4vw,17px);
+}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-size:var(--fs-base);overflow-x:hidden}
+.wrap{padding-left:var(--gutter);padding-right:var(--gutter)}
+
+/* ---- headline scale ---- */
+header.top{padding-top:clamp(18px,6vw,28px)}
+.mark{font-size:clamp(38px,12vw,56px)}
+header .tag{font-size:clamp(13px,3.7vw,15px);font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)}
+h2.title{font-size:clamp(28px,8.6vw,38px)}
+.lb h2.title{font-size:clamp(25px,7.6vw,34px)}
+.sub{font-size:clamp(13px,3.6vw,14px)}
+h3.q{font-size:var(--fs-lg)}
+h3.q .qsub{font-size:var(--fs-sm)}
+.tally{font-size:var(--fs-sm)}
+.motto{font-size:clamp(18px,5.4vw,22px);margin-top:clamp(26px,8vw,40px)}
+.onedone{font-size:clamp(24px,7.2vw,30px)}
+.lb .lead{font-size:clamp(17px,5vw,19px)}
+.day{font-size:var(--fs-lg)}
+.day strong{font-size:clamp(34px,11vw,48px)}
+.phase h4{font-size:clamp(20px,5.8vw,24px)}
+.phase p{font-size:var(--fs-sm)}
+.big strong{font-size:clamp(46px,15vw,72px)}
+.big span{font-size:var(--fs-base);max-width:16ch}
+.clock{font-size:clamp(18px,5.2vw,22px)}
+.note,.hint{font-size:var(--fs-sm)}
+
+/* ---- task rows: the title always gets the room, and wraps ---- */
+.item{padding:clamp(10px,2.9vw,16px) 2px}
+.item.st-doing,.item.menu{padding-block:clamp(10px,2.9vw,16px)}
+.irow{flex-wrap:wrap;column-gap:clamp(9px,3vw,12px);row-gap:7px}
+.list{margin-top:clamp(12px,3.6vw,18px)}
+.view{padding-top:clamp(18px,5vw,26px)}
+.skyline{margin-top:clamp(10px,3vw,18px)}
+.group{margin-top:clamp(18px,5.2vw,26px)}
+.areas{gap:clamp(8px,2.6vw,10px)}
+.battery{margin-top:clamp(22px,6.5vw,34px);padding:clamp(12px,3.6vw,14px) clamp(12px,4vw,16px);font-size:var(--fs-sm)}
+.ttext{flex:1 1 auto;min-width:0}
+.tline{flex-wrap:wrap;row-gap:4px}
+.ttext .t,.one .item .t{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;font-size:var(--fs-base);line-height:1.35}
+.one .item .t{font-size:var(--fs-lg)}
+.planned-row .t{font-size:var(--fs-base);white-space:normal;overflow-wrap:anywhere}
+.subtag{font-size:clamp(9.5px,2.7vw,10.5px);min-height:32px;padding:6px 8px}
+.sub2{font-size:var(--fs-xs)}
+.sseg button{min-height:38px;padding:8px clamp(8px,2.6vw,11px);font-size:clamp(10.5px,3vw,11.5px)}
+.dots{width:clamp(34px,9.5vw,36px);height:clamp(34px,9.5vw,36px)}
+.mini{font-size:var(--fs-sm)}
+
+/* phones: the status switch gets its own full-width line, the tag becomes a caption */
+@media (max-width:479px){
+  .tline{flex-direction:column;align-items:flex-start;gap:2px}
+  .irow>.cat,.irow>.bullet{order:0;align-self:flex-start;margin-top:2px}
+  .ttext{order:1;flex:1 1 55%}
+  .clock,.item .tag{order:2}
+  .dots{order:3;margin-left:auto;align-self:flex-start}
+  .sseg{order:4;flex:1 1 100%;width:100%}
+  .sseg button{flex:1 1 0;text-align:center}
+  .panel,.blocks{padding-left:0}
+  .one{padding:clamp(14px,4.5vw,22px) clamp(12px,4vw,18px)}
+}
+@media (min-width:480px){
+  .panel,.blocks{padding-left:clamp(24px,7vw,44px)}
+}
+
+/* ---- focus area cards ---- */
+.areahead{gap:clamp(10px,3.2vw,13px);padding:clamp(12px,3.6vw,14px) clamp(12px,4vw,16px);border-radius:clamp(13px,4vw,16px)}
+.areaicon{width:clamp(34px,10vw,38px);height:clamp(34px,10vw,38px)}
+.areaname{font-size:var(--fs-lg)}
+.areablurb{font-size:var(--fs-sm);white-space:normal;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.areaplan{font-size:var(--fs-sm);max-width:38%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.branch{margin-left:clamp(10px,4.6vw,19px);padding-left:clamp(10px,4vw,16px)}
+.subrow{padding:clamp(11px,3.4vw,13px) clamp(10px,3.6vw,14px);font-size:var(--fs-base)}
+.subrow em{font-size:var(--fs-sm)}
+.chip{font-size:clamp(13.5px,3.8vw,15px);padding:10px clamp(11px,3.6vw,14px)}
+.chip.small{font-size:var(--fs-sm)}
+
+/* ---- goals ---- */
+.ghead{flex-wrap:wrap;row-gap:6px;gap:clamp(10px,3.4vw,14px);padding:clamp(13px,3.8vw,16px) 2px}
+.ghead .ic{width:clamp(36px,10.5vw,40px);height:clamp(36px,10.5vw,40px)}
+.ghead .gt{flex:1 1 55%;min-width:0}
+.ghead .gn{font-size:var(--fs-lg)}
+.ghead .gg{font-size:var(--fs-sm);white-space:normal;overflow-wrap:anywhere}
+.ghead .gw{font-size:var(--fs-sm);margin-left:auto}
+label.l{font-size:var(--fs-sm)}
+.field{font-size:16px}            /* 16px keeps iOS from zooming on focus */
+.pday .field{font-size:16px;padding:10px 12px}
+.pday>span{width:clamp(34px,10vw,42px);font-size:var(--fs-sm)}
+.stepper button{width:44px;height:44px}
+.picker button{width:clamp(40px,11.5vw,44px);height:clamp(40px,11.5vw,44px)}
+.swatches button{width:clamp(36px,10.5vw,40px);height:clamp(36px,10.5vw,40px)}
+/* segmented pickers become wrapping pills so five options never crush */
+.seg{border:0;border-radius:0;overflow:visible;flex-wrap:wrap;gap:6px}
+.seg button{flex:1 1 auto;min-width:72px;padding:10px 12px;border:1px solid var(--line);border-radius:999px;font-size:var(--fs-sm)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--signal-dim);color:var(--signal);border-color:var(--signal)}
+.seg.small button{min-width:62px;padding:9px 10px}
+.spanctl{max-width:100%}
+
+/* ---- buttons, forms, toast ---- */
+.btn{font-size:var(--fs-sm);min-height:40px}
+.btnrow .btn{font-size:var(--fs-sm)}
+.row{flex-wrap:wrap}
+.row>.field{flex:1 1 60%;min-width:0}
+.row>.btn{flex:0 0 auto}
+.linkbtn{font-size:var(--fs-sm);padding:9px 0;min-height:40px}
+.opt{flex-wrap:wrap;gap:clamp(10px,3.4vw,14px);padding:clamp(13px,4vw,16px);font-size:var(--fs-lg)}
+.swt{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.toast{max-width:min(92vw,420px);white-space:normal;text-align:center;font-size:var(--fs-sm)}
+
+/* ---- day strip ---- */
+.daystrip{scrollbar-width:none;scroll-snap-type:x proximity}
+.daystrip::-webkit-scrollbar{display:none}
+.daystrip button{min-width:clamp(46px,13.5vw,58px);scroll-snap-align:start}
+
+/* ---- progress + roadmap ---- */
+.prow{gap:clamp(10px,3.4vw,14px)}
+.prow .pl{min-width:0;overflow-wrap:anywhere}
+.prow .pv{font-size:var(--fs-lg)}
+.psub{padding-left:clamp(20px,8vw,34px);font-size:var(--fs-sm)}
+.cycrow{gap:clamp(9px,3vw,12px)}
+.cycle li{font-size:var(--fs-sm)}
+.cycle li span.cyc{overflow-wrap:anywhere}
+.cycst{font-size:var(--fs-sm)}
+.phase{padding-left:clamp(28px,8.5vw,34px)}
+
+/* ---- tab bar ---- */
+nav.tabs .in{padding-inline:6px}
+nav.tabs button{font-size:clamp(10px,3vw,12px);padding:10px 2px 12px}
+nav.tabs svg{width:clamp(20px,6vw,22px);height:clamp(20px,6vw,22px)}
+
+/* ---- short screens (landscape phones): get Today above the fold ---- */
+@media (max-height:520px){
+  .skyline{display:none}
+  header.top{padding-top:12px}
+  .view{padding-top:16px}
+}
+
+/* ---- roomier on tablets and up ---- */
+@media (min-width:700px){
+  .wrap{max-width:620px}
+}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
