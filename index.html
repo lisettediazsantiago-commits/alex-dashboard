@@ -150,6 +150,9 @@ h3.q .qsub{font-size:13px;font-weight:500;color:var(--muted)}
 .ghead .gw{color:var(--muted);font-size:14px;flex:none}
 .paused .gn::after{content:" (paused)";font-weight:500;color:var(--faint)}
 .gbody{display:none;padding:4px 2px 22px}
+.gtabs{display:flex;gap:6px;margin-bottom:2px}
+.gtabs button{flex:1;padding:10px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-size:var(--fs-sm);font-weight:700}
+.gtabs button[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
 .goal.open .gbody{display:grid;gap:14px}
 label.l{display:grid;gap:6px;font-size:14px;color:var(--muted);font-weight:600}
 textarea.field{min-height:72px;resize:vertical}
@@ -185,6 +188,15 @@ textarea.field{min-height:72px;resize:vertical}
 .btnrow .btn{padding:9px 13px;font-size:14px;border-radius:10px}
 .chips{align-items:flex-start}
 .areas{display:grid;gap:10px;margin-top:12px}
+.addcard{display:flex;align-items:center;gap:11px;width:100%;margin-top:22px;padding:15px 16px;border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--signal);font-size:16px;font-weight:600;text-align:left}
+.addcard span:first-of-type{flex:1}
+.addcard svg{width:20px;height:20px;flex:none}
+.addcard .chev{color:var(--faint);font-size:17px;font-weight:400}
+.addcard:hover,.addcard.on{border-color:var(--signal)}
+.addpanel{margin-top:4px}
+.addpanel h3.q{margin-top:18px}
+.addpanel .add{margin-top:18px}
+.addpanel .addbtn{font-size:var(--fs-sm);color:var(--muted)}
 .area{--accent:var(--signal);transition:opacity .22s ease}
 .area.dim{opacity:.3;pointer-events:none}
 .areahead{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
@@ -827,7 +839,7 @@ function load(){
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
 let S = load(); save();
 
-let tab = 'today', openGoal = null, addOpen = false, goalAddOpen = false, newIcon = 'target', justLit = -1;
+let tab = 'today', openGoal = null, addOpen = false, goalAddOpen = false, newIcon = 'target', justLit = -1, goalTab = 'goal';
 const today = () => dkey();
 const todays = () => S.actions.filter(a => a.date===today());
 const weekActions = (ws=weekStart()) => { const we = addDays(ws,6); return S.actions.filter(a => a.done && a.date>=ws && a.date<=we); };
@@ -857,7 +869,7 @@ const isTimed = a => { const o = timeOwner(a); return o ? o.timed !== false : tr
 const lenKey = a => a.sub || ('goal:' + a.cat);
 const mmss = ms => { const t = Math.max(0,Math.ceil(ms/1000)); return `${Math.floor(t/60)}:${pad(t%60)}`; };
 let openSub = null, openGoalChip = null, openPlan = null, openItem = null, openStart = null, openCycle = null, lbEdit = false, lbFocusInput = false, lbMore = false;
-let viewDay = null, planAhead = false, spanDays = 0, dayAddOpen = null, chipFocus = false;  // 0 = one day at a time
+let viewDay = null, planAhead = false, spanDays = 0, dayAddOpen = null, chipFocus = false, addPanel = false;  // 0 = one day at a time
 const vday = () => (viewDay && viewDay >= today()) ? viewDay : today();
 const isToday = () => vday() === today();
 const dayList = k => S.actions.filter(a => a.date===k);
@@ -930,6 +942,7 @@ function renderToday(){
   }
 
   const focusGoals = activeGoals();
+  const panelOpen = addPanel || addOpen || chipFocus || !list.length;   // empty day: open on arrival
   el.innerHTML = `
     <h2 class="title" id="h-today">${todayView ? 'Today' : esc(fmt(k,{weekday:'long'}))}</h2>
     <p class="sub">${esc(dateLabel)}${todayView?'':' · planning ahead'}</p>
@@ -941,22 +954,27 @@ function renderToday(){
     ${spanDays ? `<div class="days">${Array.from({length:spanDays-1},(_,i)=>addDays(today(),i+1)).map(dayCardHTML).join('')}</div>` : ''}
     ${todayView ? `<button class="linkbtn" data-act="ahead" style="margin-top:${spanDays?18:10}px">${(planAhead||spanDays)?'Just today':'Plan the next few days ›'}</button>` : ''}
     ${carry}
-    <h3 class="q">${chipFocus && goalOf(openGoalChip) ? `Which part of ${esc(goalOf(openGoalChip).name)}?` : 'What do you want to focus on?'}<span class="qsub">${chipFocus && goalOf(openGoalChip) ? 'Pick one to add, or tap ‹ All areas to go back.' : 'Choose one area. What’s inside opens underneath it.'}</span></h3>
-    ${focusGoals.length ? focusChipsHTML(focusGoals)
-      : `<p class="sub">No active goals. Add one in Goals, or just add something below.</p>`}
-    <div class="add">
-      <button class="addbtn" data-act="add-open" aria-expanded="${addOpen}" ${addOpen?'hidden':''}>${ICON.plus.replace('<svg','<svg width="20" height="20"')} Add something</button>
-      <form class="addform ${addOpen?'on':''}" data-form="add">
-        <label class="sr" for="add-t">What is it?</label>
-        <input class="field" id="add-t" name="t" placeholder="What is it?" autocomplete="off" required maxlength="80">
-        <div class="row">
-          <label class="sr" for="add-c">Area</label>
-          <select class="field" id="add-c" name="c">${S.goals.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}<option value="none">Unsorted</option></select>
-          <button class="btn primary" type="submit">Add</button>
-        </div>
-        <button class="linkbtn" type="button" data-act="add-close" style="align-self:flex-start">Cancel</button>
-      </form>
-    </div>
+    <button class="addcard ${panelOpen?'on':''}" data-act="panel" aria-expanded="${panelOpen}">
+      ${ICON.plus.replace('<svg','<svg width="20" height="20"')}<span>Add something</span><span class="chev" aria-hidden="true">${panelOpen?'⌃':'›'}</span>
+    </button>
+    ${panelOpen ? `<div class="addpanel">
+      <h3 class="q">${chipFocus && goalOf(openGoalChip) ? `Which part of ${esc(goalOf(openGoalChip).name)}?` : 'What do you want to focus on?'}<span class="qsub">${chipFocus && goalOf(openGoalChip) ? 'Pick one to add, or tap ‹ All areas to go back.' : 'Choose one area. What’s inside opens underneath it.'}</span></h3>
+      ${focusGoals.length ? focusChipsHTML(focusGoals)
+        : `<p class="sub">No active goals. Add one in Goals, or just type something below.</p>`}
+      <div class="add">
+        <button class="addbtn" data-act="add-open" aria-expanded="${addOpen}" ${addOpen?'hidden':''}>${ICON.plus.replace('<svg','<svg width="18" height="18"')} Something that isn’t in an area</button>
+        <form class="addform ${addOpen?'on':''}" data-form="add">
+          <label class="sr" for="add-t">What is it?</label>
+          <input class="field" id="add-t" name="t" placeholder="What is it?" autocomplete="off" required maxlength="80">
+          <div class="row">
+            <label class="sr" for="add-c">Area</label>
+            <select class="field" id="add-c" name="c">${S.goals.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}<option value="none">Unsorted</option></select>
+            <button class="btn primary" type="submit">Add</button>
+          </div>
+          <button class="linkbtn" type="button" data-act="add-close" style="align-self:flex-start">Cancel</button>
+        </form>
+      </div>
+    </div>` : ''}
     ${todayView ? `<button class="battery" data-act="lb-on">${ICON.battery}<span>Low on energy today? Switch to low battery mode.</span></button>
     <p class="motto">Progress &gt; Perfection.</p>` : `<p class="motto">Plans are drafts.</p>`}`;
   if (addOpen) setTimeout(()=>{ const i=document.getElementById('add-t'); i && i.focus(); },0);
@@ -1230,22 +1248,16 @@ function renderGoals(){
           <span class="gw">${g.target ? `${n} / ${g.target} this week` : ''}</span>
         </button>
         <div class="gbody" id="gb-${g.id}">
+          <div class="gtabs" role="group" aria-label="Which part of ${esc(g.name)}">
+            ${[['goal','Goal'],['settings','Settings']].map(([k,l])=>`<button data-act="goal-tab" data-cat="${g.id}" data-t="${k}" aria-pressed="${goalTab===k}">${l}</button>`).join('')}
+          </div>
+          ${goalTab!=='goal' ? '' : `
           ${field(g.id,'name','Area name','input','What to call this part of your life')}
           ${field(g.id,'title','Current goal','input')}
           ${field(g.id,'why','Why it matters','textarea','In your own words')}
           ${field(g.id,'focus','Current focus','input','What you’re concentrating on right now')}
           ${field(g.id,'next','Next step','input','One small, concrete action',`Tapping ${esc(g.name)} on Today adds this.`)}
           ${field(g.id,'milestone','Next milestone','input','Something you’ll know you’ve reached')}
-          <div class="l" style="display:grid;gap:6px;font-size:14px;color:var(--muted);font-weight:600">Icon
-            <div class="picker" role="group" aria-label="Icon for ${esc(g.name)}">
-              ${ICON_CHOICES.map(k=>`<button data-act="goal-icon" data-cat="${g.id}" data-k="${k}" aria-pressed="${g.icon===k}" aria-label="${k}">${ICON[k]}</button>`).join('')}
-            </div>
-          </div>
-          <div class="l" style="display:grid;gap:6px;font-size:14px;color:var(--muted);font-weight:600">Colour
-            <div class="picker swatches" role="group" aria-label="Colour for ${esc(g.name)}">
-              ${COLORS.map(c=>`<button data-act="goal-color" data-cat="${g.id}" data-c="${encodeURIComponent(c)}" style="--sw:${c}" aria-pressed="${g.color===c}" aria-label="colour ${c}"></button>`).join('')}
-            </div>
-          </div>
           <div class="l" style="display:grid;gap:6px;font-size:14px;color:var(--muted);font-weight:600">Weekly target
             <div class="stepper">
               <button data-act="tgt" data-cat="${g.id}" data-d="-1" aria-label="Lower weekly target">−</button>
@@ -1259,6 +1271,17 @@ function renderGoals(){
               ${['keep','change','pause'].map(s=>`<button data-act="status" data-cat="${g.id}" data-s="${s}" aria-pressed="${g.status===s}">${s[0].toUpperCase()+s.slice(1)}</button>`).join('')}
             </div>
             <span class="hint">${g.status==='change' ? 'Rewrite the goal above. Changing course isn’t failing.' : g.status==='pause' ? 'Paused goals stay here, but leave Today’s focus list.' : 'On track to keep going.'}</span>
+          </div>`}
+          ${goalTab!=='settings' ? '' : `
+          <div class="l" style="display:grid;gap:6px;font-size:14px;color:var(--muted);font-weight:600">Icon
+            <div class="picker" role="group" aria-label="Icon for ${esc(g.name)}">
+              ${ICON_CHOICES.map(k=>`<button data-act="goal-icon" data-cat="${g.id}" data-k="${k}" aria-pressed="${g.icon===k}" aria-label="${k}">${ICON[k]}</button>`).join('')}
+            </div>
+          </div>
+          <div class="l" style="display:grid;gap:6px;font-size:14px;color:var(--muted);font-weight:600">Colour
+            <div class="picker swatches" role="group" aria-label="Colour for ${esc(g.name)}">
+              ${COLORS.map(c=>`<button data-act="goal-color" data-cat="${g.id}" data-c="${encodeURIComponent(c)}" style="--sw:${c}" aria-pressed="${g.color===c}" aria-label="colour ${c}"></button>`).join('')}
+            </div>
           </div>
           ${(g.subs||[]).length ? '' : `<label class="l" for="gp-${g.id}">Usual items<input class="field" id="gp-${g.id}" data-goalpresets="1" data-cat="${g.id}" value="${esc((g.presets||[]).join(', '))}" placeholder="Usual items, separated by commas" maxlength="200"><span class="hint">These show as one-tap adds on Today.</span></label>`}
           ${(g.subs||[]).length ? '' : `<div class="l" style="display:grid;gap:8px;font-size:14px;color:var(--muted);font-weight:600">Sessions
@@ -1289,7 +1312,7 @@ function renderGoals(){
             </div>`).join('')}
             <button class="linkbtn" data-act="sub-new" data-cat="${g.id}">+ Add a sub-area</button>
           </div>
-          <button class="linkbtn danger" data-act="goal-delete" data-cat="${g.id}">Delete this goal</button>
+          <button class="linkbtn danger" data-act="goal-delete" data-cat="${g.id}">Delete this goal</button>`}
         </div>
       </div>`;}).join('')}</div>
     <div class="add">
@@ -1444,7 +1467,7 @@ function prune(){ // keep 120 days of history; V1 has no need for more
 
 document.addEventListener('click', e=>{
   const tb = e.target.closest('nav.tabs button');
-  if (tb){ tab = tb.dataset.tab; openGoal=null; addOpen=false; viewDay=null; planAhead=false; spanDays=0; dayAddOpen=null; openSub=null; openGoalChip=null; chipFocus=false; render(); window.scrollTo({top:0}); return; }
+  if (tb){ tab = tb.dataset.tab; openGoal=null; addOpen=false; viewDay=null; planAhead=false; spanDays=0; dayAddOpen=null; openSub=null; openGoalChip=null; chipFocus=false; addPanel=false; render(); window.scrollTo({top:0}); return; }
   const b = e.target.closest('[data-act]'); if (!b) return;
   const act = b.dataset.act, id = b.dataset.id, cat = b.dataset.cat;
   switch(act){
@@ -1453,14 +1476,14 @@ document.addEventListener('click', e=>{
       const g = goalOf(cat); if (!g) break;
       const closing = openGoalChip===g.id;
       openGoalChip = closing ? null : g.id;
-      chipFocus = !closing; openSub = null; render();
+      chipFocus = !closing; addPanel = true; openSub = null; render();
       if (!closing){ const i = document.getElementById('sub-t'); if (i && !(g.subs||[]).length) i.focus({preventScroll:true}); }
       break;
     }
     case 'sub-open': {
       const sid = b.dataset.sub, f = subOf(sid); if (!f) break;
       openGoalChip = f.goal.id;
-      chipFocus = true;
+      chipFocus = true; addPanel = true;
       openItem = null;
       openSub = openSub===sid ? null : sid;
       render();
@@ -1567,7 +1590,12 @@ document.addEventListener('click', e=>{
       break;
     }
     case 'day': viewDay = b.dataset.d; planAhead = true; openSub = null; openGoalChip = null; chipFocus = false; render(); break;
-    case 'add-open': addOpen = true; render(); break;
+    case 'panel': {
+      addPanel = !addPanel;
+      if (!addPanel){ addOpen = false; chipFocus = false; openGoalChip = null; openSub = null; }
+      render(); break;
+    }
+    case 'add-open': addOpen = true; addPanel = true; render(); break;
     case 'add-close': addOpen = false; render(); break;
     case 'lb-on': S.lowBatteryDate = today(); lbEdit = false; lbMore = false; save(); render(); window.scrollTo({top:0}); break;
     case 'lb-off': S.lowBatteryDate = null; lbEdit = false; lbMore = false; save(); render(); break;
@@ -1596,14 +1624,15 @@ document.addEventListener('click', e=>{
     case 'lb-repick': S.actions = S.actions.filter(a=>!(a.lb && a.date===today() && !a.done)); lbMore = false; save(); render(); break;
     case 'lb-more': lbMore = true; render(); break;
     case 'lb-enough': lbMore = false; render(); break;
-    case 'goal-toggle': openGoal = openGoal===cat ? null : cat; goalAddOpen = false; render(); break;
+    case 'goal-toggle': openGoal = openGoal===cat ? null : cat; goalAddOpen = false; goalTab = 'goal'; render(); break;
+    case 'goal-tab': goalTab = b.dataset.t; render(); break;
     case 'tgt': { const g=goalOf(cat); g.target = Math.max(0,Math.min(7,g.target + +b.dataset.d)); save(); render(); break; }
     case 'status': goalOf(cat).status = b.dataset.s; save(); render(); break;
     case 'goal-timed': { const g = goalOf(cat); if (g){ g.timed = !g.timed; if (!g.minutes) g.minutes = 30; save(); render(); } break; }
     case 'goal-min': { const g = goalOf(cat); if (g){ g.minutes = +b.dataset.m; save(); render(); } break; }
     case 'pin-sub': { const f = subOf(b.dataset.sub); if (f){ f.sub.pin = !f.sub.pin; save(); render(); } break; }
     case 'cyc-open': openCycle = openCycle===cat ? null : cat; render(); break;
-    case 'goto-goal': tab = 'goals'; openGoal = cat; openCycle = null; render(); window.scrollTo({top:0}); break;
+    case 'goto-goal': tab = 'goals'; openGoal = cat; openCycle = null; goalTab = 'goal'; render(); window.scrollTo({top:0}); break;
     case 'plan-open': openPlan = openPlan===b.dataset.sub ? null : b.dataset.sub; render(); break;
     case 'plan-tpl': { const o = planOwner(b); if (o){ o.plan = TEMPLATES[b.dataset.t].days.slice(); save(); render(); } break; }
     case 'plan-clear': { const o = planOwner(b); if (o){ o.plan = ['','','','','','','']; save(); render(); } break; }
