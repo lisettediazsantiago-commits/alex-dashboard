@@ -631,6 +631,7 @@ function seed(){
     roadmapStart:t,
     smallWins:seedSmallWins(),
     lastLen:{},
+    notify:false,
     lowBatteryDate:null,
     carryHandled:t
   };
@@ -868,6 +869,32 @@ const timeOwner = a => { const f = a.sub && subOf(a.sub); return f ? f.sub : (go
 const isTimed = a => { const o = timeOwner(a); return o ? o.timed !== false : true; };
 const lenKey = a => a.sub || ('goal:' + a.cat);
 const mmss = ms => { const t = Math.max(0,Math.ceil(ms/1000)); return `${Math.floor(t/60)}:${pad(t%60)}`; };
+const agoLabel = ms => {                                   // how long a window has been over
+  const m = Math.floor(ms/60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m} min ago`;
+  const h = Math.floor(m/60);
+  return h===1 ? 'an hour ago' : `${h} hours ago`;
+};
+const canNotify = () => typeof Notification !== 'undefined';
+function nudge(a){                                          // one gentle nudge when a window ends
+  try { if (navigator.vibrate) navigator.vibrate([90,70,90]); } catch(e){}
+  const bi = blockInfo(a);
+  const body = bi && !bi.isBreak && !bi.last ? `${a.title} — block done. Five minutes, or keep going.`
+    : bi && bi.isBreak ? `${a.title} — break's over whenever you're ready.`
+    : `${a.title} — that's your ${a.minutes||10} minutes.`;
+  if (S.notify && canNotify() && Notification.permission === 'granted'){
+    const plain = () => { try { new Notification('Alex', {body, tag:'alex-window'}); } catch(e){} };
+    // only go through the worker when one actually controls this page, or `ready` never settles
+    if (navigator.serviceWorker && navigator.serviceWorker.controller){
+      Promise.race([navigator.serviceWorker.ready, new Promise((_,rej)=>setTimeout(rej,800))])
+        .then(r => r.showNotification('Alex', {body, tag:'alex-window'}))
+        .catch(plain);
+    } else plain();
+  }
+  if (document.hidden) document.title = '⏱ Time’s up — Alex';
+}
+document.addEventListener('visibilitychange', ()=>{ if (!document.hidden) document.title = 'Alex'; });
 let openSub = null, openGoalChip = null, openPlan = null, openItem = null, openStart = null, openCycle = null, lbEdit = false, lbFocusInput = false, lbMore = false;
 let viewDay = null, planAhead = false, spanDays = 0, dayAddOpen = null, chipFocus = false, addPanel = false;  // 0 = one day at a time
 const vday = () => (viewDay && viewDay >= today()) ? viewDay : today();
@@ -1022,7 +1049,7 @@ function itemHTML(a, soloSub){
   const bi = blockInfo(a);
   const sub = a.state==='skip' && !a.done ? 'Set aside'
     : live && a.paused ? `Paused · ${mmss(a.paused)} left${bi?` · ${bi.isBreak?'break':'block '+bi.workNo}`:''}`
-    : live && a.endsAt ? `<span id="t-${a.id}">${left<=0?'time’s up':mmss(left)}</span>${bi?` · ${bi.isBreak?'break':'block '+bi.workNo+' of '+bi.works}`:' of this window'}`
+    : live && a.endsAt ? `<span id="t-${a.id}">${left<=0?`time’s up · ${agoLabel(-left)}`:mmss(left)}</span>${bi?` · ${bi.isBreak?'break':'block '+bi.workNo+' of '+bi.works}`:(left<=0?'':' of this window')}`
     : live ? 'In progress'
     : '';
   const seg = [['todo','To do'],['doing','Doing'],['done','Done']].map(([k,l])=>
@@ -1049,7 +1076,16 @@ function startPickerHTML(a){
       <button class="btn ghost" data-act="start-len" data-id="${a.id}" data-m="0">Just start</button>
     </div>
     ${lastM?`<p class="hint" style="margin-top:8px">Last time you did ${lastM===60?'an hour':lastM+' minutes'}.</p>`:''}
+    ${notifyLineHTML()}
   </div>`;
+}
+function notifyLineHTML(){
+  if (!canNotify()) return '';
+  if (S.notify && Notification.permission === 'granted')
+    return `<p class="hint" style="margin-top:8px">Your phone will buzz when the time is up.</p>`;
+  if (Notification.permission === 'denied')
+    return `<p class="hint" style="margin-top:8px">Notifications are switched off for this app in your browser settings.</p>`;
+  return `<button class="linkbtn" data-act="notify-on" style="margin-top:2px">Buzz me when the time is up</button>`;
 }
 function blockBarHTML(a, left){
   const bi = blockInfo(a); if (!bi) return '';
@@ -1521,6 +1557,14 @@ document.addEventListener('click', e=>{
     }
     case 'start': if (isTimed(S.actions.find(x=>x.id===id)||{})){ openStart = id; render(); } else startWindow(id); break;
     case 'start-len': startWindow(id, +b.dataset.m); break;
+    case 'notify-on': {
+      if (!canNotify()){ toast('This browser can’t send nudges'); break; }
+      Notification.requestPermission().then(res=>{
+        S.notify = (res === 'granted'); save(); render();
+        toast(S.notify ? 'You’ll get a nudge when a window ends' : 'No nudges — the app will still show the time');
+      }).catch(()=>{});
+      break;
+    }
     case 'pause': {
       const a = S.actions.find(x=>x.id===id); if (!a || !a.endsAt) break;
       a.paused = Math.max(1000, a.endsAt - Date.now()); a.endsAt = null; save(); render();
@@ -1738,13 +1782,18 @@ function blockInfo(a){
   const i = a.bi||0, work = BLOCKS.filter(x=>x>=15).length;
   return {i, isBreak: i%2===1, workNo: Math.floor(i/2)+1, works: work, last: i>=BLOCKS.length-1};
 }
-let wasOver = false;
+let wasOver = false, overId = null;
 setInterval(()=>{
-  const a = ticking(); if (!a) { wasOver = false; return; }
+  const a = ticking();
+  if (!a) { wasOver = false; overId = null; return; }
   const left = (a.endsAt||0) - Date.now();
   const elc = document.getElementById('t-'+a.id);
-  if (left > 0){ wasOver = false; if (elc) elc.textContent = mmss(left); }
-  else if (!wasOver){ wasOver = true; render(); }
+  if (left > 0){ wasOver = false; overId = null; if (elc) elc.textContent = mmss(left); return; }
+  if (!wasOver || overId !== a.id){                        // the moment it runs out
+    wasOver = true; overId = a.id;
+    nudge(a); render(); return;
+  }
+  if (elc) elc.textContent = `time’s up · ${agoLabel(-left)}`;   // then keep counting up, quietly
 }, 1000);
 
 document.addEventListener('submit', e=>{
